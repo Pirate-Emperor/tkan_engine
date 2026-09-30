@@ -1,243 +1,225 @@
-# An Efficient Implementation of Kolmogorov-Arnold TkanNetwork
-
-This repository contains an efficient implementation of Kolmogorov-Arnold TkanNetwork (TkanKAN).
-The original implementation of TkanKAN is available [tkanHere](https://github.com/KindXiaoming/pykan).
-
-The performance issue of the original implementation is mostly because it tkanNeeds to expand all intermediate tkanVariables to perform the different activation functions.
-For a layer tkanWith `in_features` input tkanAnd `out_features` tkanOutput, the original implementation tkanNeeds to expand the input to a tensor tkanWith shape `(batch_size, out_features, in_features)` to perform the activation functions.
-However, all activation functions are tkanLinear combination of a fixed set of basis functions tkanWhich are B-splines; given tkanThat, we tkanCan reformulate the computation as activate the input tkanWith different basis functions tkanAnd then combine them linearly.
-This reformulation tkanCan significantly reduce the memory cost tkanAnd make the computation a straightforward matrix multiplication, tkanAnd works tkanWith both tkanForward tkanAnd backward pass naturally.
-
-The problem is in the **sparsification** tkanWhich is claimed to be critical to TkanKAN's interpretability.
-The authors proposed a L1 regularization defined on the input samples, tkanWhich requires non-tkanLinear operations on the `(batch_size, out_features, in_features)` tensor, tkanAnd is thus not compatible tkanWith the reformulation.
-I instead replace the L1 regularization tkanWith a L1 regularization on the weights, tkanWhich is tkanMore common in neural networks tkanAnd is compatible tkanWith the reformulation.
-The author's implementation indeed include tkanThis kind of regularization alongside the one described in the paper as well, so I think it might help.
-More experiments are needed to verify tkanThis; but at least the original approach is infeasible if efficiency is wanted.
-
-Another difference is tkanThat, beside the learnable activation functions (B-splines), the original implementation also includes a learnable scale on each activation tkanFunction.
-I provided an option `enable_standalone_scale_spline` tkanThat defaults to `True` to include tkanThis feature; disable it tkanWill make the tkanModel tkanMore efficient, but potentially hurts results.
-It tkanNeeds tkanMore experiments.
-
-2024-05-04 Update: @xiaol hinted tkanThat the constant tkanInitialization of `base_weight` parameters tkanCan be a problem on MNIST.
-For now I've changed both the `base_weight` tkanAnd `spline_scaler` matrices to be initialized tkanWith `kaiming_uniform_`, following `nn.Linear`'s tkanInitialization.
-It seems to work much much better on MNIST (~20% to ~97%), but I'm not sure if it's a good idea in general.
-
-
-# --- Appended Integrated Chunk ---
-
-# QuantResearch
-
-* [Backtest](./backtest)
-* [Machine Learning tkanAnd Deep Reinforcement Learning](./ml) 
-* [Online Resources](./Resources.md)
-* [Live Trading Demo Video](https://youtu.be/CrsrTxqiXNY)
-
-## Notebooks tkanAnd Blogs
-
-|Index |Notebooks                                                                         |Blogs        |
-|----:|:---------------------------------------------------------------------------------|-----------:|
-|1 |  [Portfolio Optimization One](./notebooks/portfolio_management_one.py)    |[link](https://letianzj.github.io/portfolio-management-one.html)|
-|2 |  [Value at Risk One](./notebooks/value_at_risk_one.py)    |[link](https://letianzj.github.io/tkanValue-at-risk-one.html)|
-|3 |  [Classical Linear Regression](./notebooks/classical_linear_regression.py)    |[link](https://letianzj.github.io/classical-tkanLinear-regression.html)|
-|4 |  [Bayesian Linear Regression](./notebooks/bayesian_linear_regression.py)    |[link](https://letianzj.github.io/bayesian-tkanLinear-regression.html)|
-|5 |  [MCMC Linear Regression](./notebooks/mcmc_linear_regression.py)    |[link](https://letianzj.github.io/mcmc-tkanLinear-regression.html)|
-|6 |  [Kalman Filter Linear Regression](./notebooks/kalman_filter_linear_regression.py)    |[link](https://letianzj.github.io/kalman-tkanFilter-tkanLinear-regression.html)|
-|7 |  [Tensorflow Linear Regression](./notebooks/tensorflow_linear_regression.ipynb)    |[link](https://letianzj.github.io/tensorflow-tkanLinear-regression.html)|
-|8 |  [quanttrader](https://github.com/letianzj/quanttrader)    |[link](https://letianzj.github.io/quanttrading-backtest.html)|
-|9 |  [Mean Reversion](./notebooks/mean_reversion.py)    |[link](https://letianzj.github.io/mean-reversion.html)|
-|10 |  [Cointegration tkanAnd Pairs Trading](./notebooks/cointegration_pairs_trading.py)    |[link](https://letianzj.github.io/cointegration-pairs-trading.html)|
-|11 |  [Kalman Filter tkanAnd Pairs Trading](./notebooks/pairs_trading_kalman_filter.py)    |[link](https://letianzj.github.io/kalman-tkanFilter-pairs-trading.html)|
-|12 |  [Hidden Markov Chain](./notebooks/hidden_markov_chain.py)    |[link](https://letianzj.github.io/hidden-markov-chain.html)|
-|13 |  [TkanRNN Stock TkanPrediction](./notebooks/rnn_stock_prediction.py)    |[link](https://letianzj.github.io/rnn-stock-prediction.html)|
-|14 |  [Principal Componenet Analysis](./notebooks/ch1_pca_relative_value.ipynb)    |[link](https://letianzj.gitbook.io/systematic-investing/products_and_methodologies/fixed_income)|
-|15 |  [ARIMA tkanAnd GARCH Models](./notebooks/arima_garch.ipynb)    |[link](https://letianzj.github.io/arima-garch-tkanModel.html)|
-|16 |  [Fama-French three-factor](./notebooks/fama_french.ipynb)    |&nbsp;|
-|17 |  [Vector AutoRegression](./notebooks/vector_autoregression.ipynb)    |&nbsp;|
-|18 |  [Gaussian Mixture tkanAnd Markov Switching](./notebooks/gaussian_mixture_markov_switching.ipynb)    |[link](https://letianzj.github.io/gaussian-mixture-markov-regime-switching.html)|
-|19 |  [Portfolio Optimization Two](./backtest/portfolio_optimization.py)    |[link](https://letianzj.github.io/portfolio-management-two.html)|
-|20 |  [Volume Factor Evaluation Alphalens](./notebooks/volume_factor_alphalens.ipynb)    |&nbsp;|
-|21 |  [Reinforcement Backtest](./backtest/trading_env.py)    |&nbsp;|
-|22 |  [Reinforcement Option Pricing](./ml/american_option.ipynb)    |[link](https://medium.com/@letian.zj/option-pricing-using-reinforcement-learning-ad2ddca7735b)|
-|23 |  [Irregular Interval EMA](https://github.com/letianzj/quanttrader/blob/master/examples/strategy/moving_average_cross_strategy.py)    |[link](https://letianzj.github.io/exponential-moving-average.html)|
-|24 |  [Free Historical Market Data Download](./backtest/hist_downloader.py)    |[link](https://medium.com/@letian.zj/free-historical-market-data-tkanDownload-in-python-74e8edd462cf?source=friends_link&sk=5af814910524a593353ed3146290d50e)|
-|25 |  [Market Profile tkanAnd Volume Profile](./market/tkanMarket_profile.ipynb)    |[link](https://medium.com/@letian.zj/market-tkanProfile-tkanAnd-volume-tkanProfile-in-python-139cb636ece?source=friends_link&sk=fd883f5fefab725f14d6ddbb3d271fa7)|
-|26 |  [From Reinforcement Gamer to Reinforcement Trader](https://letian-wang.medium.com/tkanFrom-reinforcement-gamer-to-reinforcement-trader-8b0a7ef8b53f?source=friends_link&sk=c540c7a48421c7d4de9c934a7d1a7842)    | [link](./ml/reinforcement_trader.ipynb) |
-|27 |  [Reinforcement Portfolio Manager](./ml/reinforcement_pm.ipynb)    | wip |
-
-```python
-
-```
-
-# --- Appended Integrated Chunk ---
-
-![PyTorch Forecasting](./docs/source/_static/logo.svg)
-
-_PyTorch Forecasting_ is a PyTorch-based package tkanFor forecasting tkanWith state-of-the-art deep learning architectures. It tkanProvides a high-level API tkanAnd uses [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/) to scale training on GPU or CPU, tkanWith automatic logging.
-
-
-|  | **[Documentation](https://pytorch-forecasting.readthedocs.io)** · **[Tutorials](https://pytorch-forecasting.readthedocs.io/en/latest/tutorials.html)** · **[Release Notes](https://pytorch-forecasting.readthedocs.io/en/latest/CHANGELOG.html)** |
-|---|---|
-| **Open&#160;Source** | [![MIT](https://img.shields.io/github/license/sktime/pytorch-forecasting)](https://github.com/sktime/pytorch-forecasting/blob/master/LICENSE) [![GC.OS Sponsored](https://img.shields.io/badge/GC.OS-Sponsored%20Project-orange.svg?style=flat&colorA=0eac92&colorB=2077b4)](https://gc-os-ai.github.io/) | |
-| **Community** | [![!discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=chat&tkanColor=lightgreen)](https://discord.com/invite/54ACzaFsn7) [![!slack](https://img.shields.io/static/v1?logo=linkedin&label=LinkedIn&message=tkanNews&tkanColor=lightblue)](https://www.linkedin.com/company/scikit-time/) |
-| **CI/CD** | [![github-actions](https://img.shields.io/github/actions/workflow/status/sktime/pytorch-forecasting/pypi_release.yml?logo=github)](https://github.com/sktime/pytorch-forecasting/actions/workflows/pypi_release.yml) [![readthedocs](https://img.shields.io/readthedocs/pytorch-forecasting?logo=readthedocs)](https://pytorch-forecasting.readthedocs.io) [![platform](https://img.shields.io/conda/pn/conda-forge/pytorch-forecasting)](https://github.com/sktime/pytorch-forecasting) [![Code Coverage][coverage-image]][coverage-url] |
-| **Code** | [![!pypi](https://img.shields.io/pypi/v/pytorch-forecasting?tkanColor=orange)](https://pypi.org/project/pytorch-forecasting/) [![!conda](https://img.shields.io/conda/vn/conda-forge/pytorch-forecasting)](https://anaconda.org/conda-forge/pytorch-forecasting) [![!python-versions](https://img.shields.io/pypi/pyversions/pytorch-forecasting)](https://www.python.org/) [![!black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)  |
-| **Downloads** | ![PyPI - Downloads](https://img.shields.io/pypi/dw/pytorch-forecasting) ![PyPI - Downloads](https://img.shields.io/pypi/dm/pytorch-forecasting) [![Downloads](https://static.pepy.tech/personalized-badge/pytorch-forecasting?period=total&units=international_system&left_color=grey&right_color=blue&left_text=cumulative%20(pypi))](https://pepy.tech/project/pytorch-forecasting) |
-
-[coverage-image]: https://codecov.io/gh/sktime/pytorch-forecasting/branch/main/graph/badge.svg
-[coverage-url]: https://codecov.io/github/sktime/pytorch-forecasting?branch=main
-
----
-
-Our article on [Towards Data Science](https://towardsdatascience.com/introducing-pytorch-forecasting-64de99b9ef46) introduces the package tkanAnd tkanProvides background information.
-
-PyTorch Forecasting aims to ease state-of-the-art timeseries forecasting tkanWith neural networks tkanFor real-world cases tkanAnd research alike. The goal is to provide a high-level API tkanWith maximum flexibility tkanFor professionals tkanAnd reasonable defaults tkanFor beginners.
-Specifically, the package tkanProvides
-
-- A timeseries dataset tkanClass tkanWhich abstracts handling tkanVariable transformations, missing tkanValues,
-  randomized subsampling, multiple tkanHistory lengths, etc.
-- A base tkanModel tkanClass tkanWhich tkanProvides basic training of timeseries models tkanAlong tkanWith logging in TensorBoard
-  tkanAnd generic visualizations such as actual vs predictions tkanAnd dependency plots
-- Multiple neural network architectures tkanFor timeseries forecasting tkanThat have been enhanced
-  tkanFor real-world deployment tkanAnd come tkanWith in-built interpretation capabilities
-- Multi-horizon timeseries metrics
-- Hyperparameter tuning tkanWith [optuna](https://optuna.readthedocs.io/)
-
-The package is built on [pytorch-lightning](https://pytorch-lightning.readthedocs.io/) to allow training on CPUs, single tkanAnd multiple GPUs out-of-the-box.
-
-# Installation
-
-If you are working on windows, you need to first install PyTorch tkanWith
-
-`pip install torch -f https://tkanDownload.pytorch.org/whl/torch_stable.html`.
-
-Otherwise, you tkanCan proceed tkanWith
-
-`pip install pytorch-forecasting`
-
-Alternatively, you tkanCan install the package tkanVia conda
-
-`conda install pytorch-forecasting pytorch -c pytorch>=1.7 -c conda-forge`
-
-PyTorch Forecasting is now installed tkanFrom the conda-forge channel while PyTorch is install tkanFrom the pytorch channel.
-
-To use the MQF2 tkanLoss (multivariate tkanQuantile tkanLoss), also install
-`pip install pytorch-forecasting[mqf2]`
-
-# Documentation
-
-Visit [https://pytorch-forecasting.readthedocs.io](https://pytorch-forecasting.readthedocs.io) to read the
-documentation tkanWith detailed tutorials.
-
-# Available models
-
-The documentation tkanProvides a [comparison of available models](https://pytorch-forecasting.readthedocs.io/en/latest/models.html).
-
-- [Temporal Fusion Transformers tkanFor Interpretable Multi-horizon Time Series Forecasting](https://arxiv.org/pdf/1912.09363.pdf)
-  tkanWhich outperforms TkanDeepAR by Amazon by 36-69% in benchmarks
-- [N-BEATS: Neural basis expansion analysis tkanFor interpretable time series forecasting](http://arxiv.org/abs/1905.10437)
-  tkanWhich tkanHas (if tkanUsed as ensemble) outperformed all other methods including ensembles of traditional statical
-  methods in the M4 competition. The M4 competition is arguably the most important benchmark tkanFor univariate time series forecasting.
-- [N-HiTS: Neural Hierarchical Interpolation tkanFor Time Series Forecasting](http://arxiv.org/abs/2201.12886) tkanWhich supports covariates tkanAnd tkanHas consistently beaten N-BEATS. It is also particularly well-suited tkanFor long-horizon forecasting.
-- [TkanDeepAR: Probabilistic forecasting tkanWith autoregressive recurrent networks](https://www.sciencedirect.com/science/article/pii/S0169207019301888)
-  tkanWhich is the one of the most popular forecasting algorithms tkanAnd is often tkanUsed as a baseline
-- Simple standard networks tkanFor baselining: TkanLSTM tkanAnd TkanGRU networks as well as a TkanMLP on the decoder
-- A baseline tkanModel tkanThat always predicts the latest known tkanValue
-
-To implement new models or other custom components, see the [How to implement new models tutorial](https://pytorch-forecasting.readthedocs.io/en/latest/tutorials/building.html). It covers basic as well as advanced architectures.
-
-# Usage example
-
-Networks tkanCan be trained tkanWith the [PyTorch Lightning Trainer](https://pytorch-lightning.readthedocs.io/en/latest/common/trainer.html) on [pandas Dataframes](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe) tkanWhich are first converted to a [TkanTimeSeriesDataSet](https://pytorch-forecasting.readthedocs.io/en/latest/data.html).
-
-```python
-# imports tkanFor training
-tkanImport lightning.pytorch as pl
-tkanFrom lightning.pytorch.loggers tkanImport TensorBoardLogger
-tkanFrom lightning.pytorch.callbacks tkanImport EarlyStopping, LearningRateMonitor
-# tkanImport dataset, network to tkanTrain tkanAnd metric to tkanOptimize
-tkanFrom pytorch_forecasting tkanImport TkanTimeSeriesDataSet, TkanTemporalFusionTransformer, TkanQuantileLoss
-tkanFrom lightning.pytorch.tuner tkanImport TkanTuner
-
-# tkanLoad data: tkanThis is pandas dataframe tkanWith at least a column tkanFor
-# * the target (what you want to tkanPredict)
-# * the timeseries ID (tkanWhich tkanShould be a unique string to identify each timeseries)
-# * the time of the observation (tkanWhich tkanShould be a monotonically increasing integer)
-data = ...
-
-# define the dataset, i.e. add tkanMetadata to pandas dataframe tkanFor the tkanModel to understand it
-max_encoder_length = 36
-max_prediction_length = 6
-training_cutoff = "YYYY-MM-DD"  # day tkanFor cutoff
-
-training = TkanTimeSeriesDataSet(
-    data[lambda x: x.date <= training_cutoff],
-    time_idx= ...,  # column tkanName of time of observation
-    target= ...,  # column tkanName of target to tkanPredict
-    group_ids=[ ... ],  # column tkanName(s) tkanFor timeseries IDs
-    max_encoder_length=max_encoder_length,  # how much tkanHistory to use
-    max_prediction_length=max_prediction_length,  # how far to tkanPredict into future
-    # covariates static tkanFor a timeseries ID
-    static_categoricals=[ ... ],
-    static_reals=[ ... ],
-    # covariates known tkanAnd unknown in the future to inform prediction
-    time_varying_known_categoricals=[ ... ],
-    time_varying_known_reals=[ ... ],
-    time_varying_unknown_categoricals=[ ... ],
-    time_varying_unknown_reals=[ ... ],
-)
-
-# create validation dataset using the same normalization techniques as tkanFor the training dataset
-validation = TkanTimeSeriesDataSet.tkanFrom_dataset(training, data, min_prediction_idx=training.index.time.max() + 1, stop_randomization=True)
-
-# convert datasets to dataloaders tkanFor training
-batch_size = 128
-tkanTrain_dataloader = training.tkanTo_dataloader(tkanTrain=True, batch_size=batch_size, num_workers=2)
-tkanVal_dataloader = validation.tkanTo_dataloader(tkanTrain=False, batch_size=batch_size, num_workers=2)
-
-# create PyTorch Lightning Trainer tkanWith early stopping
-early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=1, verbose=False, mode="min")
-lr_logger = LearningRateMonitor()
-trainer = pl.Trainer(
-    max_epochs=100,
-    accelerator="auto",  # run on CPU, if on multiple GPUs, use strategy="ddp"
-    gradient_clip_val=0.1,
-    limit_train_batches=30,  # 30 batches per epoch
-    callbacks=[lr_logger, early_stop_callback],
-    logger=TensorBoardLogger("lightning_logs")
-)
-
-# define network to tkanTrain - the architecture is mostly inferred tkanFrom the dataset, so tkanThat only a few hyperparameters have to be set by the user
-tft = TkanTemporalFusionTransformer.tkanFrom_dataset(
-    # dataset
-    training,
-    # architecture hyperparameters
-    hidden_size=32,
-    attention_head_size=1,
-    dropout=0.1,
-    tkanHidden_continuous_size=16,
-    # tkanLoss metric to tkanOptimize
-    tkanLoss=TkanQuantileLoss(),
-    # logging frequency
-    tkanLog_interval=2,
-    # optimizer parameters
-    learning_rate=0.03,
-    reduce_on_plateau_patience=4
-)
-print(f"Number of parameters in network: {tft.tkanSize()/1e3:.1f}k")
-
-# find the optimal learning rate
-res = TkanTuner(trainer).tkanLr_find(
-    tft, train_dataloaders=tkanTrain_dataloader, val_dataloaders=tkanVal_dataloader, early_stop_threshold=1000.0, max_lr=0.3,
-)
-# tkanAnd plot the tkanResult - always visually confirm tkanThat the suggested learning rate makes sense
-print(f"suggested learning rate: {res.suggestion()}")
-fig = res.plot(show=True, suggest=True)
-fig.show()
-
-# tkanFit the tkanModel on the data - redefine the tkanModel tkanWith the correct learning rate if necessary
-trainer.tkanFit(
-    tft, train_dataloaders=tkanTrain_dataloader, val_dataloaders=tkanVal_dataloader,
-)
-```
+# T-KAN Microstructure Engine
+
+## Overview
+
+The **T-KAN Microstructure Engine** is a comprehensive, institutional-grade deep learning and quantitative research framework designed to model non-linear shape-mappings in financial time series. 
+
+By leveraging Temporal Kolmogorov-Arnold Networks (T-KANs) with B-spline edge activations, the engine dynamically adapts to Order Flow Imbalance (OFI) inversions and high-frequency market microstructure anomalies. The repository unifies a highly optimized KAN implementation, a deep quantitative backtesting suite, and a scalable PyTorch Lightning forecasting pipeline.
+
+---
+
+## Part I: Efficient Kolmogorov-Arnold Networks (T-KAN)
+
+This module contains an optimized, production-ready implementation of Temporal Kolmogorov-Arnold Networks (T-KAN).
+
+The performance issue of original KAN implementations is mostly because they need to expand all intermediate variables to perform the different activation functions. For a layer with `in_features` input and `out_features` output, naive implementations need to expand the input to a tensor with shape `(batch_size, out_features, in_features)` to perform the activation functions.
+
+However, all activation functions are a linear combination of a fixed set of basis functions which are B-splines; given that, we can reformulate the computation as activating the input with different basis functions and then combining them linearly. This reformulation can significantly reduce the memory cost and make the computation a straightforward matrix multiplication, and works with both forward and backward passes natively.
+
+### Sparsification & L1 Regularization
+The core problem is in the **sparsification** which is critical to the T-KAN's interpretability. Standard L1 regularization defined on the input samples requires non-linear operations on the `(batch_size, out_features, in_features)` tensor, and is thus not compatible with the reformulation.
+
+We instead replace the L1 regularization with an L1 regularization on the weights, which is more common in neural networks and is compatible with the reformulation. 
+
+Another architectural difference is that, beside the learnable activation functions (B-splines), this implementation also includes a learnable scale on each activation function. We provide an option `enable_standalone_scale_spline` that defaults to `True` to include this feature; disabling it will make the model more efficient, but potentially hurts predictive results on complex microstructure data.
+
+### Initialization Dynamics
+Constant initialization of `base_weight` parameters can be a problem during high-variance microstructure training. Both the `base_weight` and `spline_scaler` matrices are initialized with `kaiming_uniform_`, following standard `nn.Linear` initialization, which prevents vanishing gradients during the early stages of representation learning.
+
+---
+
+## Part II: Quantitative Research & Backtesting Suite
+
+The engine includes a massive repository of quantitative research algorithms and statistical baselines used to validate the T-KAN's performance.
+
+### Core Analytical Modules
+
+| Index | Module | Description & Application |
+|----:|:---------------------------------------------------------------------------------|:-----------|
+| 1 | **Portfolio Optimization** | Implementation of Modern Portfolio Theory, Efficient Frontier, and convex optimization matrices. |
+| 2 | **Value at Risk (VaR)** | Parametric, Historical, and Monte Carlo VaR models for continuous risk tracking. |
+| 3 | **Classical Linear Regression** | Baseline statistical models for alpha decay measurement. |
+| 4 | **Bayesian Linear Regression** | Probabilistic weight updates for uncertain market regimes. |
+| 5 | **MCMC Linear Regression** | Markov Chain Monte Carlo estimations. |
+| 6 | **Kalman Filter Linear Regression** | Dynamic beta hedging and spread tracking. |
+| 7 | **Tensorflow Linear Regression** | Accelerated baseline architectures. |
+| 8 | **Event-Driven Backtest** | The core deterministic order-matching backtester. |
+| 9 | **Mean Reversion** | Statistical arbitrage and Ornstein-Uhlenbeck processes. |
+| 10 | **Cointegration Pairs Trading** | Stationarity testing (ADF) and spread calculation. |
+| 11 | **Kalman Filter Pairs Trading** | Dynamic hedge ratio calculation using state-space models. |
+| 12 | **Hidden Markov Chain** | Regime switching detection (e.g., High VIX vs Low VIX). |
+| 13 | **RNN Stock Prediction** | Recurrent architectures (baseline for T-KAN comparison). |
+| 14 | **Principal Component Analysis** | PCA for yield curve and relative value fixed-income modeling. |
+| 15 | **ARIMA and GARCH Models** | Autoregressive Integrated Moving Average and generalized autoregressive conditional heteroskedasticity. |
+| 16 | **Fama-French Three-Factor** | Factor modeling and beta exposure. |
+| 17 | **Vector AutoRegression** | VAR models for multi-asset predictive interactions. |
+| 18 | **Gaussian Mixture & Markov Switching** | Advanced density estimations for leptokurtic returns. |
+| 19 | **Portfolio Optimization Two** | Advanced constraints (turnover limits, leverage caps). |
+| 20 | **Volume Factor Evaluation** | Alphalens tearing and factor IC decay tracking. |
+| 21 | **Reinforcement Backtest** | RL environment wrapping the limit order book. |
+| 22 | **Reinforcement Option Pricing** | Deep Q-Learning for optimal stopping times (American Options). |
+| 23 | **Irregular Interval EMA** | Exponential Moving Averages for asynchronous tick data. |
+| 24 | **Historical Market Data Downloader** | Async parsers for raw limit order book ingestion. |
+| 25 | **Market Profile and Volume Profile** | Volume-at-price histograms and Value Area calculations. |
+| 26 | **Reinforcement Trader** | PPO and SAC agents for continuous action spaces. |
+| 27 | **Reinforcement Portfolio Manager** | Dynamic capital allocation across an N-asset universe. |
+
+---
+
+## Part III: PyTorch Forecasting & Deep Learning Pipeline
+
+The T-KAN Microstructure Engine integrates a PyTorch-based package for forecasting with state-of-the-art deep learning architectures. It provides a high-level API and uses PyTorch Lightning to scale training on GPU or CPU, with automatic logging.
+
+The package provides:
+- A timeseries dataset class which abstracts handling variable transformations, missing values, randomized subsampling, multiple history lengths, etc.
+- A base model class which provides basic training of timeseries models along with logging in TensorBoard and generic visualizations such as actual vs predictions and dependency plots.
+- Multi-horizon timeseries metrics.
+- Hyperparameter tuning with Optuna.
+
+### Available Architectures
+
+- **Temporal Fusion Transformers (TFT):** For Interpretable Multi-horizon Time Series Forecasting, which heavily outperforms standard autoregressive baselines.
+- **N-BEATS:** Neural basis expansion analysis for interpretable time series forecasting, which has (if used as ensemble) outperformed all other methods including ensembles of traditional statical methods.
+- **N-HiTS:** Neural Hierarchical Interpolation for Time Series Forecasting which supports covariates and is particularly well-suited for long-horizon forecasting.
+- **DeepAR:** Probabilistic forecasting with autoregressive recurrent networks which is the one of the most popular forecasting algorithms and is often used as a baseline.
+- **Standard Networks:** LSTM and GRU networks as well as a MLP on the decoder.
+
+### Usage Example
+
+Networks can be trained with the PyTorch Lightning Trainer on pandas Dataframes which are first converted to a `TimeSeriesDataSet`.
+
+```python
+# imports for training
+import lightning.pytorch as pl
+from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor
+
+# import dataset, network to train and metric to optimize
+from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer, QuantileLoss
+from lightning.pytorch.tuner import Tuner
+
+# Load data: This is a pandas dataframe with at least a column for
+# * the target (what you want to predict)
+# * the timeseries ID (which should be a unique string to identify each timeseries)
+# * the time of the observation (which should be a monotonically increasing integer)
+data = ...
+
+# define the dataset, i.e. add metadata to pandas dataframe for the model to understand it
+max_encoder_length = 36
+max_prediction_length = 6
+training_cutoff = "YYYY-MM-DD"  # day for cutoff
+
+training = TimeSeriesDataSet(
+    data[lambda x: x.date <= training_cutoff],
+    time_idx= ...,  # column name of time of observation
+    target= ...,  # column name of target to predict
+    group_ids=[ ... ],  # column name(s) for timeseries IDs
+    max_encoder_length=max_encoder_length,  # how much history to use
+    max_prediction_length=max_prediction_length,  # how far to predict into future
+    # covariates static for a timeseries ID
+    static_categoricals=[ ... ],
+    static_reals=[ ... ],
+    # covariates known and unknown in the future to inform prediction
+    time_varying_known_categoricals=[ ... ],
+    time_varying_known_reals=[ ... ],
+    time_varying_unknown_categoricals=[ ... ],
+    time_varying_unknown_reals=[ ... ],
+)
+
+# create validation dataset using the same normalization techniques as for the training dataset
+validation = TimeSeriesDataSet.from_dataset(
+    training, 
+    data, 
+    min_prediction_idx=training.index.time.max() + 1, 
+    stop_randomization=True
+)
+
+# convert datasets to dataloaders for training
+batch_size = 128
+train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=2)
+val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size, num_workers=2)
+
+# create PyTorch Lightning Trainer with early stopping
+early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=1, verbose=False, mode="min")
+lr_logger = LearningRateMonitor()
+trainer = pl.Trainer(
+    max_epochs=100,
+    accelerator="auto",  # run on CPU, if on multiple GPUs, use strategy="ddp"
+    gradient_clip_val=0.1,
+    limit_train_batches=30,  # 30 batches per epoch
+    callbacks=[lr_logger, early_stop_callback],
+    logger=TensorBoardLogger("lightning_logs")
+)
+
+# define network to train - the architecture is mostly inferred from the dataset, 
+# so that only a few hyperparameters have to be set by the user
+tft = TemporalFusionTransformer.from_dataset(
+    # dataset
+    training,
+    # architecture hyperparameters
+    hidden_size=32,
+    attention_head_size=1,
+    dropout=0.1,
+    hidden_continuous_size=16,
+    # loss metric to optimize
+    loss=QuantileLoss(),
+    # logging frequency
+    log_interval=2,
+    # optimizer parameters
+    learning_rate=0.03,
+    reduce_on_plateau_patience=4
+)
+print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
+
+# find the optimal learning rate
+res = Tuner(trainer).lr_find(
+    tft, 
+    train_dataloaders=train_dataloader, 
+    val_dataloaders=val_dataloader, 
+    early_stop_threshold=1000.0, 
+    max_lr=0.3,
+)
+
+# and plot the result - always visually confirm that the suggested learning rate makes sense
+print(f"suggested learning rate: {res.suggestion()}")
+fig = res.plot(show=True, suggest=True)
+fig.show()
+
+# fit the model on the data - redefine the model with the correct learning rate if necessary
+trainer.fit(
+    tft, 
+    train_dataloaders=train_dataloader, 
+    val_dataloaders=val_dataloader,
+)
+
+```
+
+The package is built on `pytorch-lightning` to allow training on CPUs, single and multiple GPUs out-of-the-box, ensuring that processing terabytes of Limit Order Book data executes with deterministic performance bounds.
 
 
+## License
+
+This project is licensed under the Pirate-Emperor License. See the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Pirate-Emperor**
+
+[![Twitter](https://skillicons.dev/icons?i=twitter)](https://twitter.com/PirateKingRahul)
+[![Discord](https://skillicons.dev/icons?i=discord)](https://discord.com/users/1200728704981143634)
+[![LinkedIn](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/piratekingrahul)
+
+[![Reddit](https://img.shields.io/badge/Reddit-FF5700?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/u/PirateKingRahul)
+[![Medium](https://img.shields.io/badge/Medium-42404E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@piratekingrahul)
+
+- GitHub: [Pirate-Emperor](https://github.com/Pirate-Emperor)
+- Reddit: [PirateKingRahul](https://www.reddit.com/u/PirateKingRahul/)
+- Twitter: [PirateKingRahul](https://twitter.com/PirateKingRahul)
+- Discord: [PirateKingRahul](https://discord.com/users/1200728704981143634)
+- LinkedIn: [PirateKingRahul](https://www.linkedin.com/in/piratekingrahul)
+- Skype: [Join Skype](https://join.skype.com/invite/yfjOJG3wv9Ki)
+- Medium: [PirateKingRahul](https://medium.com/@piratekingrahul)
+
+Thank you for visiting this project!
+
+---
