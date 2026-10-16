@@ -26,17 +26,20 @@ def load(path: Path) -> dict:
 
 
 def save_figure(fig, name: str, svg_dir: Path, png_dir: Path) -> None:
+    # Fixed SVG metadata makes chart regeneration stable and prevents repeated
+    # CI commits caused only by a changing timestamp in the file header.
     fig.savefig(
         svg_dir / f"{name}.svg",
         format="svg",
         bbox_inches="tight",
-        metadata={"Creator": "Pirate-Emperor"},
+        metadata={"Creator": "Pirate-Emperor", "Date": None},
     )
     fig.savefig(
         png_dir / f"{name}.png",
         format="png",
         dpi=180,
         bbox_inches="tight",
+        metadata={"Software": "Pirate-Emperor"},
     )
     plt.close(fig)
 
@@ -225,9 +228,9 @@ def main() -> int:
     ax.set_axisbelow(True)
     save_figure(fig, "ddp_cpu", svg_dir, png_dir)
 
-    # Optional GPU scaling plot appears only when real CUDA benchmark JSON is present.
-    gpu_runs = []
+    # Optional GPU scaling plot appears only when real CUDA benchmark JSON exists.
     results_dir = Path(args.ddp).parent
+    gpu_runs = []
     for gpu_count in (1, 2, 4):
         path = results_dir / f"ddp_benchmark_{gpu_count}gpu.json"
         if path.exists():

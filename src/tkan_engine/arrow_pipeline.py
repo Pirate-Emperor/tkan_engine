@@ -87,8 +87,11 @@ def process_batches(batches: Iterable):
                 + ", ".join(sorted(missing))
             )
 
-        # Cast sizes before division so integer-sized LOB data is handled
-        # without rounding the denominator floor to zero.
+        bid_px = pc.cast(table["bid_px_1"], pa.float64())
+        ask_px = pc.cast(table["ask_px_1"], pa.float64())
+
+        # Raw L2 batches require best-level sizes. Already-featured batches may
+        # supply queue_imbalance and skip this calculation.
         if "queue_imbalance" not in columns:
             missing_sizes = {"bid_sz_1", "ask_sz_1"} - columns
             if missing_sizes:
@@ -107,20 +110,16 @@ def process_batches(batches: Iterable):
             table = table.append_column("queue_imbalance", qi)
 
         if "mid" not in columns:
-            mid = pc.multiply(
-                pc.add(table["ask_px_1"], table["bid_px_1"]),
-                0.5,
-            )
+            mid = pc.multiply(pc.add(ask_px, bid_px), 0.5)
             table = table.append_column("mid", mid)
+        else:
+            mid = pc.cast(table["mid"], pa.float64())
 
-        # Recompute spread from prices and replace any stale supplied value
+        # Recompute spread from the prices and replace stale supplied values
         # rather than appending a duplicate column with the same name.
         spread = pc.divide(
-            pc.multiply(
-                pc.subtract(table["ask_px_1"], table["bid_px_1"]),
-                pa.scalar(1e4),
-            ),
-            table["mid"],
+            pc.multiply(pc.subtract(ask_px, bid_px), pa.scalar(1e4)),
+            mid,
         )
         if "spread_bps" in table.column_names:
             table = table.drop(["spread_bps"])
