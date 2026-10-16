@@ -174,8 +174,8 @@ z
    <g id="patch_4">
     <path d="M 345.503007 322.59952 
 L 566.713356 322.59952 
-L 566.713356 63.808969 
-L 345.503007 63.808969 
+L 566.713356 63.809386 
+L 345.503007 63.809386 
 z
 " clip-path="url(#p30f0c198f4)" style="fill: #1f77b4"/>
    </g>
@@ -203,7 +203,7 @@ L 591.59952 23.077969
     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="179.595245" y="91.741057" transform="rotate(-0 179.595245 91.741057)">0.7502</text>
    </g>
    <g id="text_11">
-    <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="456.108181" y="57.64686" transform="rotate(-0 456.108181 57.64686)">0.8640</text>
+    <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="456.108181" y="57.647277" transform="rotate(-0 456.108181 57.647277)">0.8640</text>
    </g>
    <g id="text_12">
     <text style="font-size: 13px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="317.851713" y="17.077969" transform="rotate(-0 317.851713 17.077969)">Controlled nonlinear inversion: rank correlation</text>
