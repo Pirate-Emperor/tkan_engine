@@ -1,43 +1,49 @@
 # Benchmark and test status
 
-## Previously recorded CI baseline
+## Latest complete CI validation
 
-The published baseline was measured in [GitHub Actions run 22](https://github.com/SpryzenHell/tkan_engine/actions/runs/37154074480), from 3 October 2026. It used Ubuntu 24.04, Python 3.12.14, PyTorch 2.14.1 and PyArrow 25.0.1.
+[GitHub Actions run 38925481878](https://github.com/SpryzenHell/tkan_engine/actions/runs/38925481878) completed on 16 October 2026 with all seven jobs successful. The test matrix passed on Python 3.10, 3.11 and 3.12; each job reported **23 passed, 10 skipped**. Most skips are Arrow-specific tests in the matrix jobs where PyArrow is not installed. The separate PyArrow jobs ran successfully on PyArrow 26.0.0.
 
-The prior test matrix passed on Python 3.10, 3.11 and 3.12. It reported 7 passed and 2 skipped in each Python job before the extra edge-case tests were added. Re-check the current run in Actions for the result of the expanded suite.
+The run validated the current model and streaming code before the final documentation and runner-workflow adjustments. The core model, Arrow and DDP code included in that run is the same as in the current revision.
 
-### Nonlinear inversion
+## Controlled nonlinear inversion
 
-| Model | Parameters | Test RMSE (bps) | Test IC |
-|---|---:|---:|---:|
-| MLP | 801 | 0.8717509 | 0.7501843 |
-| T-KAN | 3,266 | 0.5374402 | 0.8640131 |
+The benchmark fits a known nonlinear target from synthetic order-flow features. The test set is chronological; this is not exchange replay or a trading backtest.
 
-### Arrow stream benchmark
+| Model | Parameters | Test MSE (bps²) | Test RMSE (bps) | Test IC |
+|---|---:|---:|---:|---:|
+| MLP | 801 | 0.7599496 | 0.8717509 | 0.7501843 |
+| T-KAN | 3,266 | 0.2888439 | 0.5374420 | 0.8640117 |
 
-| Events | Batches | Batch size | Elapsed (s) | Events/s |
-|---:|---:|---:|---:|---:|
-| 5,000,000 | 20 | 250,000 | 0.475624 | 10,512,495.9 |
-| 300,000,000 | 300 | 1,000,000 | 19.174390 | 15,645,869.3 |
+The measured T-KAN RMSE is about 38.4% lower than the MLP RMSE for this synthetic target. See `results/ci_inversion_3000.json`.
 
-These are synthetic streaming tests, not real market-message replay results.
+## Arrow stream benchmark
 
-### DDP CPU smoke test
+Both runs process deterministic synthetic batches and release each batch after processing. They demonstrate streaming at scale, not replay of real exchange messages.
 
-| World size | Device | Global samples | Throughput (samples/s) | Wall time (s) |
+| Events | Batches | Batch size | Elapsed (s) | Events/s | Selected rows |
+|---:|---:|---:|---:|---:|---:|
+| 5,000,000 | 20 | 250,000 | 0.402591 | 12,419,549.4 | 5,000,000 |
+| 300,000,000 | 300 | 1,000,000 | 26.670037 | 11,248,578.2 | 300,000,000 |
+
+The runs were in separate CI jobs; their rates are host-dependent and should not be read as a controlled scaling comparison. Checksums and environment details are saved in `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_300m.json`.
+
+## DDP CPU smoke test
+
+| World size | Device | Global samples | Wall time (s) | Throughput (samples/s) |
 |---:|---|---:|---:|---:|
-| 2 | CPU | 2,560 | 104.8995 | 24.404307 |
+| 2 | CPU | 2,560 | 27.309215 | 93.7413 |
 
-This verifies the basic distributed path but does not measure GPU scaling.
+This checks distributed execution on CPU. It is not a GPU throughput or scaling result. Full run details are saved in `results/ddp_benchmark_cpu.json`.
 
 ## GPU DDP and profiler
 
 <!-- GPU_RESULTS_START -->
-No A100 throughput or arithmetic-intensity result has been measured in this checkout. The manual GPU workflow records one-, two-, and four-GPU throughput where the devices are available, along with mixed-precision settings, peak allocated memory, and a PyTorch operator profile. Hardware-counter arithmetic intensity still requires an Nsight Compute run on a compatible host.
+No A100 throughput or arithmetic-intensity result has been measured yet. Run the manual `tkan-engine-a100-validation` workflow from the repository where `integrator-1` is registered. It checks out this project, validates the visible A100 40GB devices, and uploads the measured GPU results, plots, profiler output, and updated benchmark summaries as an artifact. Hardware-counter arithmetic intensity still requires an Nsight Compute run on a compatible host.
 <!-- GPU_RESULTS_END -->
 
 ## Current test coverage
 
-The CI suite includes tests for B-spline basis shape/sums, forward and backward gradients, adaptive spline grids, temporal model output shapes, finite LOB features, deterministic stream continuity, valid batch counts, sequence alignment, invalid input handling, Arrow filtering/grouping/range selection, stale columns, raw integer sizes, empty streams and missing input columns.
+The suite checks spline basis shapes and sums, forward/backward gradients, adaptive spline grids, temporal output shapes, finite LOB features, stream continuity and reproducibility, sequence alignment, invalid parameters, Arrow batch accounting, integer queue sizes, stale spread values, missing columns, empty streams, range filtering, and boundary handling.
 
-CI runs pytest on Python 3.10, 3.11 and 3.12, plus the nonlinear inversion benchmark, 5M-event Arrow smoke run, 300M-event Arrow stress run and two-rank CPU DDP smoke run. The manual A100 workflow is separate and only runs when dispatched with the required self-hosted runner online.
+The standard CI runs pytest on Python 3.10, 3.11 and 3.12; runs the nonlinear inversion experiment; processes 5M and 300M generated events; runs two-rank CPU DDP; generates eight SVG plots and uploads PNG copies. The A100 test is a separate manual workflow because its self-hosted runner is currently offline.

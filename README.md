@@ -19,7 +19,7 @@ Source code is in `src/tkan_engine`; runnable commands are in `scripts/`.
 
 ## Measured results
 
-The table below reports the saved measurements from [GitHub Actions run 22](https://github.com/SpryzenHell/tkan_engine/actions/runs/37154074480), completed on 3 October 2026. The recorded environment was Ubuntu 24.04, Python 3.12.14, PyTorch 2.14.1 and Apache Arrow 25.0.1. These are baseline measurements; newer runs may vary by host.
+The latest complete code-validation run is [GitHub Actions run 38925481878](https://github.com/SpryzenHell/tkan_engine/actions/runs/38925481878), completed on 16 October 2026. All seven jobs passed: the Python 3.10, 3.11 and 3.12 test jobs, the 5M and 300M Arrow runs, the two-rank CPU DDP smoke test, and the plot report. Each Python matrix job reported 23 passed and 10 skipped; the Arrow jobs separately exercised the Arrow pipeline with PyArrow 26.0.0. The inversion measurements used Python 3.10.22 and PyTorch 2.14.1; the Arrow and DDP timings used Python 3.12.15 on Ubuntu 24.04. Timings vary by host.
 
 ### Controlled nonlinear inversion
 
@@ -50,8 +50,8 @@ The stress generator creates synthetic event batches and runs columnar feature c
 
 | Events | Batch size | Batches | Elapsed time | Throughput | Selected rows |
 |---:|---:|---:|---:|---:|---:|
-| 5,000,000 | 250,000 | 20 | 0.476 s | 10.512M events/s | 5,000,000 |
-| 300,000,000 | 1,000,000 | 300 | 19.174 s | 15.646M events/s | 300,000,000 |
+| 5,000,000 | 250,000 | 20 | 0.403 s | 12.420M events/s | 5,000,000 |
+| 300,000,000 | 1,000,000 | 300 | 26.670 s | 11.249M events/s | 300,000,000 |
 
 The 300M-event result is a synthetic Arrow stress test, not a claim that 300M real exchange messages were replayed. Its checksum was `1,509,462,417.5703695`. The two timings come from separate CI jobs and should not be treated as a controlled hardware scaling comparison.
 
@@ -65,7 +65,7 @@ Saved run data: `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_3
 
 ### Distributed training smoke test
 
-The recorded two-rank DDP smoke test ran on CPU. It processed 2,560 samples in 24.404 seconds at 104.900 samples/second. This verifies a basic distributed execution path, **not** multi-GPU scaling.
+The recorded two-rank DDP smoke test ran on CPU. It processed 2,560 samples in 27.309 seconds at 93.741 samples/second. This verifies a basic distributed execution path, **not** multi-GPU scaling.
 
 ![Two-rank CPU DDP smoke result](docs/figures/ddp_cpu.svg)
 

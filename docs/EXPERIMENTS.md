@@ -8,12 +8,12 @@ The target is generated from the order-flow imbalance feature and its change:
 0.9*sin(2.6*OFI) + 0.55*OFI^3 + 0.25*dOFI + N(0, 0.08^2)
 ```
 
-The saved CI run uses 3,000 observations, 16-step sequences, a chronological 80/20 split, five epochs, and a batch size of 128.
+The latest complete run used 3,000 observations, 16-step sequences, a chronological 80/20 split, five epochs, and a batch size of 128. It was part of [GitHub Actions run 38925481878](https://github.com/SpryzenHell/tkan_engine/actions/runs/38925481878).
 
 | Model | Parameters | Test MSE (bps²) | Test RMSE (bps) | Test IC |
 |---|---:|---:|---:|---:|
 | MLP | 801 | 0.7599496 | 0.8717509 | 0.7501843 |
-| T-KAN | 3,266 | 0.2888420 | 0.5374402 | 0.8640131 |
+| T-KAN | 3,266 | 0.2888439 | 0.5374420 | 0.8640117 |
 
 The T-KAN result is lower error on this generated target. This is evidence for this controlled experiment only; it is not an exchange-data result or a trading-alpha claim.
 
@@ -25,8 +25,8 @@ The 5M-event and 300M-event jobs both run a deterministic synthetic Arrow stream
 
 | Events | Batch size | Batches | Elapsed (s) | Events/s | Selected rows | Checksum |
 |---:|---:|---:|---:|---:|---:|---:|
-| 5,000,000 | 250,000 | 20 | 0.475624 | 10,512,495.9 | 5,000,000 | 25,165,450.6906 |
-| 300,000,000 | 1,000,000 | 300 | 19.174390 | 15,645,869.3 | 300,000,000 | 1,509,462,417.5704 |
+| 5,000,000 | 250,000 | 20 | 0.402591 | 12,419,549.4 | 5,000,000 | 25,165,450.6906 |
+| 300,000,000 | 1,000,000 | 300 | 26.670037 | 11,248,578.2 | 300,000,000 | 1,509,462,417.5704 |
 
 The process builds and releases one batch at a time. These counts describe generated rows, not a replay of real market messages. They demonstrate the Arrow path's ability to work across a stream larger than a single in-memory batch.
 
@@ -38,7 +38,7 @@ The saved smoke benchmark used two Gloo ranks on CPU, with 2,560 total samples o
 
 | Device | Ranks | Wall time (s) | Global samples/s |
 |---|---:|---:|---:|
-| CPU | 2 | 24.404307 | 104.8995 |
+| CPU | 2 | 27.309215 | 93.7413 |
 
 This is a distributed correctness smoke test. Do not use it as a GPU throughput or scaling claim.
 

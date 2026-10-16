@@ -32,7 +32,7 @@ def require_arrow() -> None:
     if pa is None:
         raise RuntimeError(
             "Apache Arrow is required. Install with "
-            "pip install 'pyarrow>=25,<26'."
+            "pip install 'pyarrow>=25,<27'."
         ) from _IMPORT_ERROR
 
 

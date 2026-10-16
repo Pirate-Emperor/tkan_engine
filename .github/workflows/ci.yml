@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e . pyarrow
+      - run: python -m pip install -e . "pyarrow>=25,<27"
       - run: python scripts/benchmark_arrow.py --events 5000000 --batch-size 250000
 
   arrow-300m:
@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e . pyarrow
+      - run: python -m pip install -e . "pyarrow>=25,<27"
       - run: python scripts/benchmark_arrow.py --events 300000000 --batch-size 1000000
 
   ddp-cpu-smoke:
