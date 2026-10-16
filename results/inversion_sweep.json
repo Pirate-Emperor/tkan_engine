@@ -28,17 +28,17 @@
       "mlp": {
         "test_mse_bps2": 0.33609896898269653,
         "test_rmse_bps": 0.5797404324201448,
-        "test_ic": 0.7843735836229415,
+        "test_ic": 0.7843735841676499,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.3204863965511322,
         "test_rmse_bps": 0.566115179580209,
-        "test_ic": 0.7957630427669595,
+        "test_ic": 0.7957630427669594,
         "parameters": 3266
       },
-      "mlp_seconds": 1.352850766000003,
-      "tkan_seconds": 1.0253749820000024,
+      "mlp_seconds": 0.9573539060000016,
+      "tkan_seconds": 0.6598187879999955,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -48,17 +48,17 @@
       "mlp": {
         "test_mse_bps2": 0.4152648150920868,
         "test_rmse_bps": 0.644410439931017,
-        "test_ic": 0.707210497415121,
+        "test_ic": 0.7072104955748221,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.40452802181243896,
         "test_rmse_bps": 0.6360251738826372,
-        "test_ic": 0.7160538748256098,
+        "test_ic": 0.7160538748256097,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09187101800000619,
-      "tkan_seconds": 0.9883860650000003,
+      "mlp_seconds": 0.04430656499999941,
+      "tkan_seconds": 0.572185202,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -68,17 +68,17 @@
       "mlp": {
         "test_mse_bps2": 0.3995400071144104,
         "test_rmse_bps": 0.6320917711174623,
-        "test_ic": 0.7148301259083099,
+        "test_ic": 0.7148301259083102,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.38549932837486267,
         "test_rmse_bps": 0.6208859221909148,
-        "test_ic": 0.7257363872302718,
+        "test_ic": 0.7257363872302713,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09107445700000483,
-      "tkan_seconds": 0.8958306260000057,
+      "mlp_seconds": 0.04372661000000022,
+      "tkan_seconds": 0.5877596050000022,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -88,17 +88,17 @@
       "mlp": {
         "test_mse_bps2": 0.39768704771995544,
         "test_rmse_bps": 0.6306243316903936,
-        "test_ic": 0.7250741698147748,
+        "test_ic": 0.7250741698147742,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.38785362243652344,
         "test_rmse_bps": 0.6227789515040818,
-        "test_ic": 0.7330138287517777,
+        "test_ic": 0.7330138287517775,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09045820400000082,
-      "tkan_seconds": 0.8944136870000108,
+      "mlp_seconds": 0.043763265999999135,
+      "tkan_seconds": 0.5644598180000031,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -108,17 +108,17 @@
       "mlp": {
         "test_mse_bps2": 0.3848763108253479,
         "test_rmse_bps": 0.6203840027155342,
-        "test_ic": 0.7445400791828061,
+        "test_ic": 0.7445400792049925,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.38718467950820923,
         "test_rmse_bps": 0.6222416568409811,
-        "test_ic": 0.7451923800783979,
+        "test_ic": 0.745192380078398,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09326816900001234,
-      "tkan_seconds": 0.8991049209999886,
+      "mlp_seconds": 0.04393243000000524,
+      "tkan_seconds": 0.5808394660000005,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -128,17 +128,17 @@
       "mlp": {
         "test_mse_bps2": 0.34029239416122437,
         "test_rmse_bps": 0.5833458615274685,
-        "test_ic": 0.7817056995860204,
+        "test_ic": 0.7817056995860208,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.32426363229751587,
         "test_rmse_bps": 0.5694415091100365,
-        "test_ic": 0.7934706847552334,
+        "test_ic": 0.7934706847552337,
         "parameters": 3266
       },
-      "mlp_seconds": 0.0916636780000033,
-      "tkan_seconds": 0.899242299000008,
+      "mlp_seconds": 0.04815248599999933,
+      "tkan_seconds": 0.6237668409999984,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -148,7 +148,7 @@
       "mlp": {
         "test_mse_bps2": 0.41763296723365784,
         "test_rmse_bps": 0.6462452841094145,
-        "test_ic": 0.7059443338361436,
+        "test_ic": 0.7059443326009079,
         "parameters": 801
       },
       "tkan": {
@@ -157,8 +157,8 @@
         "test_ic": 0.7150712719790847,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09275358600000061,
-      "tkan_seconds": 0.8945071810000087,
+      "mlp_seconds": 0.04455701299999504,
+      "tkan_seconds": 0.6209622929999981,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -168,7 +168,7 @@
       "mlp": {
         "test_mse_bps2": 0.40472307801246643,
         "test_rmse_bps": 0.6361784954024039,
-        "test_ic": 0.7116014204420857,
+        "test_ic": 0.711601420442086,
         "parameters": 801
       },
       "tkan": {
@@ -177,8 +177,8 @@
         "test_ic": 0.7228682007947622,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09136071099999299,
-      "tkan_seconds": 0.9194641560000036,
+      "mlp_seconds": 0.044335093000000825,
+      "tkan_seconds": 0.6407793499999954,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -188,7 +188,7 @@
       "mlp": {
         "test_mse_bps2": 0.40397948026657104,
         "test_rmse_bps": 0.6355938013122618,
-        "test_ic": 0.7217304384224413,
+        "test_ic": 0.7217304384224409,
         "parameters": 801
       },
       "tkan": {
@@ -197,8 +197,8 @@
         "test_ic": 0.7295595454198192,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09165648399999782,
-      "tkan_seconds": 0.9685075470000015,
+      "mlp_seconds": 0.0449540259999992,
+      "tkan_seconds": 0.5989410000000106,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -208,7 +208,7 @@
       "mlp": {
         "test_mse_bps2": 0.3907962739467621,
         "test_rmse_bps": 0.6251370041413019,
-        "test_ic": 0.7421770968766137,
+        "test_ic": 0.7421770968766138,
         "parameters": 801
       },
       "tkan": {
@@ -217,8 +217,8 @@
         "test_ic": 0.7428653185711444,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09139060799999754,
-      "tkan_seconds": 0.9329354960000131,
+      "mlp_seconds": 0.045007135999995285,
+      "tkan_seconds": 0.584328534000008,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -228,17 +228,17 @@
       "mlp": {
         "test_mse_bps2": 0.3585514724254608,
         "test_rmse_bps": 0.598791676984125,
-        "test_ic": 0.7721019692658866,
+        "test_ic": 0.772101969265886,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.34159836173057556,
         "test_rmse_bps": 0.5844641663357777,
-        "test_ic": 0.7845772434479034,
+        "test_ic": 0.7845772434479028,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09192358500000353,
-      "tkan_seconds": 0.9432857970000015,
+      "mlp_seconds": 0.04416651799999727,
+      "tkan_seconds": 0.5845548260000015,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -248,17 +248,17 @@
       "mlp": {
         "test_mse_bps2": 0.43264928460121155,
         "test_rmse_bps": 0.6577608110865313,
-        "test_ic": 0.6990163323297384,
+        "test_ic": 0.6990163323297387,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.4207836091518402,
         "test_rmse_bps": 0.6486783556986007,
-        "test_ic": 0.7089005278299606,
+        "test_ic": 0.7089005278299605,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09194469300000208,
-      "tkan_seconds": 0.9756500139999957,
+      "mlp_seconds": 0.043656768000005286,
+      "tkan_seconds": 0.5700495189999941,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -268,17 +268,17 @@
       "mlp": {
         "test_mse_bps2": 0.42590710520744324,
         "test_rmse_bps": 0.65261558762218,
-        "test_ic": 0.7003912430417268,
+        "test_ic": 0.700391243041727,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.4099896550178528,
         "test_rmse_bps": 0.6403043456184354,
-        "test_ic": 0.7125644297710212,
+        "test_ic": 0.7125644297710215,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09193713999999886,
-      "tkan_seconds": 0.936292306999988,
+      "mlp_seconds": 0.04436029000000019,
+      "tkan_seconds": 0.5828800279999911,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -288,17 +288,17 @@
       "mlp": {
         "test_mse_bps2": 0.4263836145401001,
         "test_rmse_bps": 0.6529805621456891,
-        "test_ic": 0.710959937960223,
+        "test_ic": 0.7109599380994648,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.4169115424156189,
         "test_rmse_bps": 0.6456868764467951,
-        "test_ic": 0.7186361788317639,
+        "test_ic": 0.7186361788317636,
         "parameters": 3266
       },
-      "mlp_seconds": 0.0928262050000086,
-      "tkan_seconds": 0.9454406849999941,
+      "mlp_seconds": 0.044658289000011564,
+      "tkan_seconds": 0.5890235629999978,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -308,17 +308,17 @@
       "mlp": {
         "test_mse_bps2": 0.4131459891796112,
         "test_rmse_bps": 0.642764334091128,
-        "test_ic": 0.7331125008882869,
+        "test_ic": 0.7331124997594142,
         "parameters": 801
       },
       "tkan": {
         "test_mse_bps2": 0.4160454273223877,
         "test_rmse_bps": 0.6450158349392576,
-        "test_ic": 0.7340097677728645,
+        "test_ic": 0.7340097677728646,
         "parameters": 3266
       },
-      "mlp_seconds": 0.09083262299999717,
-      "tkan_seconds": 0.9950204529999951,
+      "mlp_seconds": 0.045263051999995696,
+      "tkan_seconds": 0.5872698809999974,
       "train_sequences": 2387,
       "test_sequences": 597
     }
@@ -330,8 +330,8 @@
       "mlp": {
         "mean_rmse_bps": 0.6214501955749103,
         "std_rmse_bps": 0.02482650717491991,
-        "mean_ic": 0.7352056911887906,
-        "std_ic": 0.03084702054459894,
+        "mean_ic": 0.7352056909341098,
+        "std_ic": 0.03084702118087421,
         "mean_mse_bps2": 0.3866934299468994,
         "std_mse_bps2": 0.030270941626978087,
         "parameters": 801
@@ -339,8 +339,8 @@
       "tkan": {
         "mean_rmse_bps": 0.6136093767997648,
         "std_rmse_bps": 0.027247532916706767,
-        "mean_ic": 0.7431519027306033,
-        "std_ic": 0.031274907850440514,
+        "mean_ic": 0.7431519027306032,
+        "std_ic": 0.03127490785044058,
         "mean_mse_bps2": 0.3771104097366333,
         "std_mse_bps2": 0.03257792890760387,
         "parameters": 3266
@@ -366,8 +366,8 @@
       "mlp": {
         "mean_rmse_bps": 0.6253000892985702,
         "std_rmse_bps": 0.024612929715309033,
-        "mean_ic": 0.732631797832661,
-        "std_ic": 0.030711145012369177,
+        "mean_ic": 0.7326317975856138,
+        "std_ic": 0.03071114528071904,
         "mean_mse_bps2": 0.39148483872413636,
         "std_mse_bps2": 0.030150589434781074,
         "parameters": 801
@@ -375,8 +375,8 @@
       "tkan": {
         "mean_rmse_bps": 0.6173715801906031,
         "std_rmse_bps": 0.027247731168510834,
-        "mean_ic": 0.7407670043040088,
-        "std_ic": 0.031178220833163444,
+        "mean_ic": 0.7407670043040089,
+        "std_ic": 0.031178220833163586,
         "mean_mse_bps2": 0.3817416191101074,
         "std_mse_bps2": 0.03273485482013636,
         "parameters": 3266
@@ -402,8 +402,8 @@
       "mlp": {
         "mean_rmse_bps": 0.6409825943859306,
         "std_rmse_bps": 0.02420761463483236,
-        "mean_ic": 0.7231163966971724,
-        "std_ic": 0.030596297239558284,
+        "mean_ic": 0.7231163964992461,
+        "std_ic": 0.030596297133523777,
         "mean_mse_bps2": 0.4113274931907654,
         "std_mse_bps2": 0.03034174501027682,
         "parameters": 801
@@ -412,7 +412,7 @@
         "mean_rmse_bps": 0.6328299158077733,
         "std_rmse_bps": 0.027203326689524382,
         "mean_ic": 0.7317376295307026,
-        "std_ic": 0.031056320711900714,
+        "std_ic": 0.03105632071190048,
         "mean_mse_bps2": 0.40106571912765504,
         "std_mse_bps2": 0.03346744757164386,
         "parameters": 3266
@@ -434,6 +434,6 @@
     }
   ],
   "notes": "Exploratory synthetic-data sensitivity analysis. Means and sample standard deviations describe the selected seeds; they are not confidence intervals, exchange-data results, or trading-performance claims.",
-  "ci_run_id": 38946424156,
-  "source_commit": "4585da84b97001ef826407f3c6f8292d1e5d62aa"
+  "ci_run_id": 38946974694,
+  "source_commit": "c3a888c5edf7a81c3f0d6533b16ea1def6eb7ffc"
 }

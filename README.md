@@ -20,7 +20,7 @@ Source code is in `src/tkan_engine`; runnable commands are in `scripts/`.
 ## Measured results
 
 <!-- CI_VALIDATION_START -->
-[GitHub Actions run 38946424156](https://github.com/SpryzenHell/tkan_engine/actions/runs/38946424156) was generated from commit `4585da84b970`. The report job starts only after the Python tests, Arrow stress runs, CPU DDP test, and sensitivity sweep have all succeeded.
+[GitHub Actions run 38946974694](https://github.com/SpryzenHell/tkan_engine/actions/runs/38946974694) was generated from commit `c3a888c5edf7`. The report job starts only after the Python tests, Arrow stress runs, CPU DDP test, and sensitivity sweep have all succeeded.
 
 | Python | Tests | Passed | Skipped | Failures | Errors |
 |---:|---:|---:|---:|---:|---:|
@@ -95,8 +95,8 @@ The stress generator creates synthetic event batches and runs columnar feature c
 <!-- ARROW_METRICS_START -->
 | Events | Batch size | Batches | Elapsed (s) | Throughput | Selected rows | Checksum |
 |---:|---:|---:|---:|---:|---:|---:|
-| 5,000,000 | 250,000 | 20 | 0.482 | 10.381M | 5,000,000 | 25,165,450.6906 |
-| 300,000,000 | 1,000,000 | 300 | 26.648 | 11.258M | 300,000,000 | 1,509,462,417.5704 |
+| 5,000,000 | 250,000 | 20 | 0.602 | 8.302M | 5,000,000 | 25,165,450.6906 |
+| 300,000,000 | 1,000,000 | 300 | 26.805 | 11.192M | 300,000,000 | 1,509,462,417.5704 |
 
 These are fresh runs over generated events, not replayed exchange messages. They ran in separate CI jobs, so rates are host-dependent and are not a controlled scaling comparison. Full environment and source commit are saved in the JSON result files.
 <!-- ARROW_METRICS_END -->
@@ -116,7 +116,7 @@ Saved run data: `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_3
 <!-- DDP_METRICS_START -->
 | Device | Ranks | Global samples | Wall time (s) | Samples/s | Local batch | Warmup steps | Measured steps |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| cpu | 2 | 2,560 | 36.188 | 70.742 | 128 | 10 | 10 |
+| cpu | 2 | 2,560 | 32.508 | 78.749 | 128 | 10 | 10 |
 
 This is a distributed smoke test on the device listed above. CPU results do not measure GPU speed or multi-GPU scaling.
 <!-- DDP_METRICS_END -->

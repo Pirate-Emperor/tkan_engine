@@ -54,8 +54,8 @@ The 5M-event and 300M-event jobs both run a deterministic synthetic Arrow stream
 <!-- ARROW_METRICS_START -->
 | Events | Batch size | Batches | Elapsed (s) | Throughput | Selected rows | Checksum |
 |---:|---:|---:|---:|---:|---:|---:|
-| 5,000,000 | 250,000 | 20 | 0.482 | 10.381M | 5,000,000 | 25,165,450.6906 |
-| 300,000,000 | 1,000,000 | 300 | 26.648 | 11.258M | 300,000,000 | 1,509,462,417.5704 |
+| 5,000,000 | 250,000 | 20 | 0.602 | 8.302M | 5,000,000 | 25,165,450.6906 |
+| 300,000,000 | 1,000,000 | 300 | 26.805 | 11.192M | 300,000,000 | 1,509,462,417.5704 |
 
 These are fresh runs over generated events, not replayed exchange messages. They ran in separate CI jobs, so rates are host-dependent and are not a controlled scaling comparison. Full environment and source commit are saved in the JSON result files.
 <!-- ARROW_METRICS_END -->
@@ -71,7 +71,7 @@ The saved smoke benchmark used two Gloo ranks on CPU, with 2,560 total samples o
 <!-- DDP_METRICS_START -->
 | Device | Ranks | Global samples | Wall time (s) | Samples/s | Local batch | Warmup steps | Measured steps |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| cpu | 2 | 2,560 | 36.188 | 70.742 | 128 | 10 | 10 |
+| cpu | 2 | 2,560 | 32.508 | 78.749 | 128 | 10 | 10 |
 
 This is a distributed smoke test on the device listed above. CPU results do not measure GPU speed or multi-GPU scaling.
 <!-- DDP_METRICS_END -->
