@@ -58,6 +58,8 @@ def q_by(table, keys: list[str], aggregations: list[tuple[str, str]]):
 
 def q_within(table, column: str, lower: float, upper: float):
     require_arrow()
+    if lower > upper:
+        raise ValueError("lower must be less than or equal to upper")
     col = table[column]
     mask = pc.and_(
         pc.greater_equal(col, lower),
@@ -67,6 +69,7 @@ def q_within(table, column: str, lower: float, upper: float):
 
 
 def process_batches(batches: Iterable):
+    """Process Arrow RecordBatches without collecting the full stream in memory."""
     require_arrow()
     start = time.perf_counter()
     events = 0
@@ -76,29 +79,42 @@ def process_batches(batches: Iterable):
 
     for batch in batches:
         table = pa.Table.from_batches([batch])
+        columns = set(table.column_names)
+        missing = {"ts_ns", "bid_px_1", "ask_px_1"} - columns
+        if missing:
+            raise ValueError(
+                "Arrow batch is missing required columns: "
+                + ", ".join(sorted(missing))
+            )
 
-        # Accept raw L2 events or already-featured batches. Raw L2 events must
-        # contain best bid/ask prices and sizes; derived columns are computed in
-        # Arrow so the 300M-event path exercises columnar feature construction.
-        if "mid" not in table.column_names:
+        # Cast sizes before division so integer-sized LOB data is handled
+        # without rounding the denominator floor to zero.
+        if "queue_imbalance" not in columns:
+            missing_sizes = {"bid_sz_1", "ask_sz_1"} - columns
+            if missing_sizes:
+                raise ValueError(
+                    "Arrow batch needs bid_sz_1 and ask_sz_1 when "
+                    "queue_imbalance is not supplied"
+                )
+            bid_size = pc.cast(table["bid_sz_1"], pa.float64())
+            ask_size = pc.cast(table["ask_sz_1"], pa.float64())
+            denom = pc.add(bid_size, ask_size)
+            denom = pc.max_element_wise(
+                denom,
+                pa.scalar(1e-12, type=pa.float64()),
+            )
+            qi = pc.divide(pc.subtract(bid_size, ask_size), denom)
+            table = table.append_column("queue_imbalance", qi)
+
+        if "mid" not in columns:
             mid = pc.multiply(
                 pc.add(table["ask_px_1"], table["bid_px_1"]),
                 0.5,
             )
             table = table.append_column("mid", mid)
 
-        if "queue_imbalance" not in table.column_names:
-            denom = pc.add(table["bid_sz_1"], table["ask_sz_1"])
-            denom = pc.max_element_wise(
-                denom,
-                pa.scalar(1e-12, type=denom.type),
-            )
-            qi = pc.divide(
-                pc.subtract(table["bid_sz_1"], table["ask_sz_1"]),
-                denom,
-            )
-            table = table.append_column("queue_imbalance", qi)
-
+        # Recompute spread from prices and replace any stale supplied value
+        # rather than appending a duplicate column with the same name.
         spread = pc.divide(
             pc.multiply(
                 pc.subtract(table["ask_px_1"], table["bid_px_1"]),
@@ -106,6 +122,8 @@ def process_batches(batches: Iterable):
             ),
             table["mid"],
         )
+        if "spread_bps" in table.column_names:
+            table = table.drop(["spread_bps"])
         table = table.append_column("spread_bps", spread)
 
         table = q_where(
@@ -123,9 +141,7 @@ def process_batches(batches: Iterable):
         batch_count += 1
         events += batch.num_rows
         selected += table.num_rows
-        checksum += float(
-            pc.sum(table["spread_bps"]).as_py() or 0.0
-        )
+        checksum += float(pc.sum(table["spread_bps"]).as_py() or 0.0)
 
     elapsed = time.perf_counter() - start
     return ArrowRun(
@@ -138,10 +154,17 @@ def process_batches(batches: Iterable):
     )
 
 
-def scan_parquet(path: str | Path, batch_size: int = 1_000_000, columns: list[str] | None = None):
+def scan_parquet(
+    path: str | Path,
+    batch_size: int = 1_000_000,
+    columns: list[str] | None = None,
+):
     """Stream a Parquet dataset as Arrow RecordBatches."""
     require_arrow()
+    if batch_size <= 0:
+        raise ValueError("batch_size must be positive")
     import pyarrow.dataset as ds
+
     dataset = ds.dataset(str(path), format="parquet")
     return dataset.scanner(columns=columns, batch_size=batch_size).to_batches()
 
@@ -152,16 +175,21 @@ def synthetic_arrow_stream(
     seed: int = 7,
 ):
     require_arrow()
+    events = int(events)
+    batch_size = int(batch_size)
+    if events < 0:
+        raise ValueError("events must be non-negative")
+    if batch_size <= 0:
+        raise ValueError("batch_size must be positive")
+
     rng = np.random.default_rng(seed)
-    remaining = int(events)
+    remaining = events
     timestamp = 1_700_000_000_000_000_000
     mid_level = 100.0
 
     while remaining:
         n = min(batch_size, remaining)
-        mid = mid_level + np.cumsum(
-            rng.normal(0.0, 2e-5, n)
-        )
+        mid = mid_level + np.cumsum(rng.normal(0.0, 2e-5, n))
         mid_level = float(mid[-1])
         spread = np.maximum(
             0.01,
@@ -171,9 +199,7 @@ def synthetic_arrow_stream(
         ask = mid + spread / 2
         bsz = rng.lognormal(2.2, 0.25, n)
         asz = rng.lognormal(2.2, 0.25, n)
-        imbalance = (
-            (bsz - asz) / np.maximum(bsz + asz, 1e-8)
-        )
+        imbalance = (bsz - asz) / np.maximum(bsz + asz, 1e-8)
 
         yield pa.record_batch(
             {

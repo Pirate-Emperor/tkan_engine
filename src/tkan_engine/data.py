@@ -27,6 +27,12 @@ class SyntheticLOBStream:
         self.events = int(events)
         self.config = config
         self.batch_size = int(batch_size)
+        if self.events < 0:
+            raise ValueError("events must be non-negative")
+        if self.batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+        if self.config.levels <= 0:
+            raise ValueError("levels must be positive")
 
     def batches(self) -> Iterator[pd.DataFrame]:
         rng = np.random.default_rng(self.config.seed)
@@ -109,8 +115,16 @@ class SyntheticLOBStream:
 
 class SequenceDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):
     def __init__(self, X: np.ndarray, y: np.ndarray) -> None:
-        self.X = torch.as_tensor(X, dtype=torch.float32)
-        self.y = torch.as_tensor(y, dtype=torch.float32).reshape(-1, 1)
+        x_tensor = torch.as_tensor(X, dtype=torch.float32)
+        y_tensor = torch.as_tensor(y, dtype=torch.float32).reshape(-1, 1)
+        if x_tensor.ndim < 2:
+            raise ValueError("X must have a sample dimension and at least one feature dimension")
+        if len(x_tensor) != len(y_tensor):
+            raise ValueError("X and y must contain the same number of samples")
+        if len(x_tensor) == 0:
+            raise ValueError("X and y must not be empty")
+        self.X = x_tensor
+        self.y = y_tensor
 
     def __len__(self) -> int:
         return len(self.X)
@@ -125,6 +139,16 @@ def make_sequences(
     length: int = 64,
     stride: int = 1,
 ) -> tuple[np.ndarray, np.ndarray]:
+    features = np.asarray(features)
+    targets = np.asarray(targets)
+    if length <= 0:
+        raise ValueError("length must be positive")
+    if stride <= 0:
+        raise ValueError("stride must be positive")
+    if features.ndim == 0 or targets.ndim == 0:
+        raise ValueError("features and targets must have a sample dimension")
+    if len(features) != len(targets):
+        raise ValueError("features and targets must have the same number of observations")
     if len(features) <= length:
         raise ValueError("not enough observations for a sequence")
 

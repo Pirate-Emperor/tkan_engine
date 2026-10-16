@@ -1,54 +1,20 @@
-# Profiling
+# GPU profiling and throughput checks
 
-## CPU
+The CPU DDP smoke test is a correctness check and must not be presented as GPU scaling. Use the manual **A100 GPU benchmark** workflow to collect measurements on a CUDA host with the required self-hosted labels.
 
-scripts/benchmark_model.py reports inference throughput and batch latency with synchronized timing on CUDA and a high-resolution wall clock on CPU.
+The workflow records:
 
-## GPU arithmetic intensity
+- Single-GPU, two-GPU and four-GPU samples/second, when the corresponding number of devices is visible.
+- Global batch size, step time, AMP setting, fused AdamW use, model size and peak allocated memory for the rank that writes the result.
+- A PyTorch profiler table with operator timings, tensor shapes and memory information.
+- Separate unprofiled throughput measurements so profiler overhead does not become the headline throughput number.
 
-scripts/profile_gpu.py uses torch.profiler and records CUDA time and memory. For actual arithmetic intensity, run Nsight Compute on the target NVIDIA host and collect achieved FLOP/s, DRAM bandwidth, occupancy and Tensor Core utilization.
+Run the profiler directly on a CUDA machine:
 
-The script refuses to report a GPU metric when CUDA is not available.
+```shell
+python scripts/profile_gpu.py --batch 128 --seq-len 64 --features 15 --hidden 96 --steps 10 --measure-steps 50
+```
 
-## DDP scaling
+It writes `results/gpu_profile.txt` and `results/gpu_profile_metrics.json`. The script exits with a clear message if CUDA is unavailable.
 
-Run the same model/data configuration at ranks 1, 2, 4 and 8.
-
-Record:
-- global samples per second,
-- step time,
-- end-to-end step time,
-- peak memory per rank,
-- scaling efficiency;
-- optional communication microbenchmarks when explicitly added.
-
-The CPU two-rank script is a correctness smoke test only.
-
-## Recorded Arrow benchmark
-
-GitHub Actions run 37152777795 processed 5,000,000 synthetic events in 20 Arrow RecordBatches of 250,000 rows each.
-
-- elapsed: 0.481237 s
-- throughput: 10,389,882 events/s
-- selected rows: 5,000,000
-
-This is a streaming CPU Arrow benchmark on a GitHub-hosted runner, not a 300M result.
-
-## DDP scaling benchmark schema
-
-scripts/ddp_benchmark.py records:
-- world size
-- device
-- global batch size
-- global samples
-- wall-clock seconds
-- samples/sec
-- step latency
-- parameter count
-- global sample count
-
-For GPU scaling, run the same configuration at 1, 2, 4 and 8 ranks using a fixed dataset and batch size. Compute:
-
-scaling_efficiency(N) = throughput_N / (N * throughput_1)
-
-and retain the hardware, CUDA, PyTorch, driver and batch configuration in the output JSON.
+For hardware-counter arithmetic intensity, run Nsight Compute on the NVIDIA host, using counters supported by that installed version. Keep the exact command, driver, CUDA, PyTorch and GPU model next to the collected report. A PyTorch operator profile alone does not measure the full device memory traffic or establish a FLOP/byte arithmetic-intensity value.

@@ -1,375 +1,214 @@
 # T-KAN Microstructure Engine
 
-![Project overview](assets/main.png)
+**Maintainer:** Pirate-Emperor
 
-A compact research implementation for modelling event-level limit-order-book microstructure with a Temporal Kolmogorov-Arnold Network (T-KAN), a streaming Apache Arrow data path, and PyTorch DistributedDataParallel support.
+A research implementation for studying event-level limit-order-book (LOB) features with a Temporal Kolmogorov-Arnold Network (T-KAN), Apache Arrow columnar processing, and PyTorch DistributedDataParallel (DDP).
 
-The repository is designed to be runnable from a clean checkout. The default examples use deterministic synthetic data so that the model and data pipeline can be tested without a proprietary market-data feed.
+The default examples use seeded synthetic data, so the full pipeline can be checked without private exchange feeds. Real Parquet data can be supplied separately when its license and terms permit the intended use.
 
-## What is in the repository
-
-The project has four main parts.
+## Components
 
 | Area | Implementation |
 |---|---|
-| Nonlinear sequence model | B-spline KAN edge activations with adaptive grids and a causal depthwise temporal mixer |
-| LOB feature path | Spread, queue imbalance, microprice displacement, signed trade, ten level-wise depth imbalance and midpoint return |
-| Columnar data path | Apache Arrow RecordBatch processing, q-like filter/select/within/group helpers and Parquet dataset scanning |
-| Distributed training | PyTorch DDP, DistributedSampler, CUDA AMP, fused AdamW when supported, gradient clipping and synchronized KAN grid state |
+| Temporal model | B-spline edge activations, adaptive spline grids, and a causal temporal mixer |
+| LOB features | Spread, queue imbalance, microprice displacement, signed trade, ten depth-imbalance features, and midpoint return |
+| Columnar processing | Apache Arrow RecordBatch processing, q-like filter/select/range/group helpers, and streaming Parquet scans |
+| Training | PyTorch DDP, distributed sampling, CUDA automatic mixed precision (AMP), optional fused AdamW, gradient clipping, and synchronized spline-grid state |
 
-The source code is under `src/tkan_engine`. Command-line entry points used in the examples are under `scripts/`.
+Source code is in `src/tkan_engine`; runnable commands are in `scripts/`.
 
-## Results
+## Measured results
 
-The values below are measured outputs from the repository's GitHub Actions run 22 on the branch used for this project. The benchmark environment was Ubuntu 24.04 with Python 3.12.14, PyTorch 2.14.1 and Apache Arrow 25.0.1.
+The table below reports the saved measurements from [GitHub Actions run 22](https://github.com/SpryzenHell/tkan_engine/actions/runs/37154074480), completed on 3 October 2026. The recorded environment was Ubuntu 24.04, Python 3.12.14, PyTorch 2.14.1 and Apache Arrow 25.0.1. These are baseline measurements; newer runs may vary by host.
 
 ### Controlled nonlinear inversion
 
-This benchmark generates a known nonlinear response from order-flow features and compares a small MLP against the T-KAN encoder. It is deliberately a controlled representation-learning experiment; it is not exchange replay data and it is not a trading-alpha study.
+This experiment fits a known nonlinear target and compares a small MLP with T-KAN. It uses synthetic order-flow features and is a representation-learning test, not a trading backtest or exchange replay.
 
-Configuration:
-
-- 3,000 synthetic observations
-- sequence length 16
-- chronological 80/20 split
-- 5 epochs
-- batch size 128
-- hidden dimension 16
-- T-KAN spline grid size 6
+Configuration: 3,000 observations, sequence length 16, chronological 80/20 split, 5 epochs, batch size 128, hidden dimension 16, and spline grid size 6.
 
 | Model | Parameters | Test MSE (bps²) | Test RMSE (bps) | Test IC |
 |---|---:|---:|---:|---:|
 | MLP | 801 | 0.75995 | 0.87175 | 0.75018 |
 | T-KAN | 3,266 | 0.28884 | 0.53744 | 0.86401 |
 
-![RMSE comparison](docs/figures/inversion_rmse.svg)
+On this fixed synthetic test, T-KAN reduced RMSE by about 38.4% and improved the information coefficient by about 0.114. Its parameter count is larger, so the comparison is about prediction quality for this target rather than parameter efficiency.
 
-![Training loss](docs/figures/inversion_loss.svg)
+![Test RMSE comparison](docs/figures/inversion_rmse.svg)
 
-![Measured comparison table](docs/figures/inversion_table.svg)
+![Test information coefficient comparison](docs/figures/inversion_ic.svg)
 
-The exact CI JSON is stored in `results/ci_inversion_3000.json`.
+![T-KAN training loss by epoch](docs/figures/inversion_loss.svg)
 
-### 300M-event Arrow stress run
+![Parameter count and test error](docs/figures/model_tradeoff.svg)
 
-The Arrow path processes one RecordBatch at a time. The run below used a one-million-row batch size and completed without constructing a 300M-row in-memory table.
+The run details and training history are stored in `results/ci_inversion_3000.json`.
 
-| Metric | Measured value |
-|---|---:|
-| Events | 300,000,000 |
-| RecordBatches | 300 |
-| Elapsed time | 19.174 s |
-| Throughput | 15,645,869 events/s |
-| Selected rows | 300,000,000 |
-| Checksum | 1,509,462,417.5703695 |
+### Apache Arrow event processing
 
-![Arrow stress run](docs/figures/arrow_300m.svg)
+The stress generator creates synthetic event batches and runs columnar feature calculation, filtering, projection and checksum calculation one batch at a time. It does not build a 300M-row table in memory.
 
-The exact run is stored in `results/arrow_benchmark_300m.json`.
+| Events | Batch size | Batches | Elapsed time | Throughput | Selected rows |
+|---:|---:|---:|---:|---:|---:|
+| 5,000,000 | 250,000 | 20 | 0.476 s | 10.512M events/s | 5,000,000 |
+| 300,000,000 | 1,000,000 | 300 | 19.174 s | 15.646M events/s | 300,000,000 |
 
-### 2-rank CPU DDP smoke benchmark
+The 300M-event result is a synthetic Arrow stress test, not a claim that 300M real exchange messages were replayed. Its checksum was `1,509,462,417.5703695`. The two timings come from separate CI jobs and should not be treated as a controlled hardware scaling comparison.
 
-This is a distributed correctness and small throughput smoke test, not a GPU scaling result.
+![Arrow throughput at two event counts](docs/figures/arrow_300m.svg)
 
-| Metric | Measured value |
-|---|---:|
-| World size | 2 |
-| Device | CPU |
-| Global batch size | 256 |
-| Steps | 10 |
-| Global samples | 2,560 |
-| Wall time | 24.404 s |
-| Throughput | 104.900 samples/s |
-| Parameters | 889,604 |
+![Observed Arrow runtime by event count](docs/figures/arrow_runtime.svg)
 
-![DDP CPU result](docs/figures/ddp_cpu.svg)
+![Arrow batch counts and batch sizes](docs/figures/arrow_batches.svg)
 
-The exact run is stored in `results/ddp_benchmark_cpu.json`.
+Saved run data: `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_300m.json`.
 
-### CI execution snapshot
+### Distributed training smoke test
 
-The following image is a rendering of the actual benchmark output captured from the same CI run.
+The recorded two-rank DDP smoke test ran on CPU. It processed 2,560 samples in 24.404 seconds at 104.900 samples/second. This verifies a basic distributed execution path, **not** multi-GPU scaling.
 
-![CI terminal snapshot](docs/figures/ci_terminal_snapshot.svg)
+![Two-rank CPU DDP smoke result](docs/figures/ddp_cpu.svg)
 
-![End-to-end pipeline](docs/figures/pipeline.svg)
+The exact metrics are in `results/ddp_benchmark_cpu.json`.
 
-![LOB feature schema](docs/figures/feature_schema.svg)
+### A100 training results
+
+<!-- GPU_RESULTS_START -->
+No A100 throughput or GPU arithmetic-intensity result has been recorded in this checkout. Run the manual **A100 GPU benchmark** workflow on the matching online self-hosted runner to measure single-, two-, and four-GPU training throughput. CPU DDP results are not a substitute for this measurement.
+<!-- GPU_RESULTS_END -->
 
 ## Installation
 
-The verified Python range in CI is 3.10, 3.11 and 3.12.
+Python 3.10, 3.11 and 3.12 are covered by the continuous-integration matrix.
 
-### Linux / macOS
+### Linux or macOS
 
-```bash
+```shell
 git clone https://github.com/SpryzenHell/tkan_engine.git
 cd tkan_engine
-
 python3.12 -m venv .venv
 source .venv/bin/activate
-
 python -m pip install --upgrade pip
 python -m pip install -e ".[full]"
 ```
 
-Use Python 3.10 or 3.11 in place of 3.12 when those are the interpreters available on the machine.
+Use an available Python 3.10 or 3.11 interpreter in place of `python3.12` when required.
 
 ### Windows PowerShell
 
 ```powershell
 git clone https://github.com/SpryzenHell/tkan_engine.git
 cd tkan_engine
-
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
 python -m pip install --upgrade pip
 python -m pip install -e ".[full]"
 ```
 
-If the machine does not have a Python 3.12 launcher, use `py -3.10` or `py -3.11`.
+For CUDA training, install the PyTorch build suited to the target machine first, then install the project. The code selects CUDA when it is available and otherwise uses CPU. No GPU benchmark is reported unless a CUDA run completes.
 
-The `full` extra installs the optional Arrow support and pytest. The base package only needs NumPy, pandas and PyTorch.
+## Verify the installation
 
-### GPU environments
+Run a quick environment and model check:
 
-The repository does not pin a CUDA-specific PyTorch wheel. On a CUDA machine, install the PyTorch build appropriate for that machine first, then install the project with:
-
-```bash
-python -m pip install -e ".[full]"
-```
-
-The code automatically selects CUDA when it is available. CUDA AMP and fused AdamW are enabled where the installed PyTorch build supports them. The repository never reports a GPU benchmark unless CUDA is actually present.
-
-## Verify a fresh installation
-
-Run the lightweight self-check first:
-
-```bash
+```shell
 python scripts/self_check.py
 ```
 
-A successful run prints the Python and PyTorch versions, whether CUDA and PyArrow are available, the generated LOB feature dimension, the model output shape and `Self-check: OK`.
+Run the tests:
 
-Then run the test suite:
-
-```bash
+```shell
 pytest
 ```
 
-## Run the nonlinear benchmark
+The test suite covers spline basis shapes and sums, forward/backward gradients, adaptive grids, temporal output shapes, feature values, stream continuity and reproducibility, input validation, and Arrow filtering, grouping and batch accounting where PyArrow is installed.
 
-The benchmark used for the numbers above is:
+## Run the nonlinear inversion benchmark
 
-```bash
-python scripts/inversion_benchmark.py \
-  --events 3000 \
-  --epochs 5 \
-  --batch-size 128 \
-  --hidden 16 \
-  --grid-size 6
+```shell
+python scripts/inversion_benchmark.py --events 3000 --epochs 5 --batch-size 128 --hidden 16 --grid-size 6
 ```
 
-It writes `results/inversion_benchmark.json`.
+The target is generated by:
 
-The benchmark target is generated by:
-
-```
+```text
 0.9*sin(2.6*OFI) + 0.55*OFI^3 + 0.25*dOFI + N(0, 0.08^2)
 ```
 
-The split is chronological rather than random.
+The script writes `results/inversion_benchmark.json`. The data split is chronological, not random.
 
-## Run the LOB model
+## Train the LOB model
 
-The basic training path uses the deterministic ten-level LOB generator:
-
-```bash
-python scripts/train.py   --events 30000   --seq-len 64   --epochs 6   --batch-size 256   --hidden 48   --depth 2   --grid-size 8
+```shell
+python scripts/train.py --events 30000 --seq-len 64 --epochs 6 --batch-size 256 --hidden 48 --depth 2 --grid-size 8
 ```
 
-The command writes `results/model_metrics.json`.
+The command writes `results/model_metrics.json`. This path materializes the requested development-sized event window into pandas; use the Arrow pipeline for large streaming tests.
 
-The model predicts the next midpoint return in basis points per event. The training script currently materializes the requested event window into a pandas DataFrame, so this command is intended for development-sized data rather than the 300M-event stress path.
+## Run Arrow tests and stress runs
 
-## Run the Arrow pipeline
+Small smoke test:
 
-For a small local smoke test:
-
-```bash
+```shell
 python scripts/benchmark_arrow.py --events 5000000 --batch-size 250000
 ```
 
-For the full stress configuration used in CI:
+Large synthetic stress test:
 
-```bash
+```shell
 python scripts/benchmark_arrow.py --events 300000000 --batch-size 1000000
 ```
 
-The Arrow path requires PyArrow. It consumes RecordBatches one at a time and applies columnar operations before releasing the batch.
+For a real Parquet dataset, provide a file or directory containing the columns `ts_ns`, `bid_px_1`, `ask_px_1`, `bid_sz_1`, and `ask_sz_1`:
 
-### Using real Parquet replay data
-
-The Parquet scanner expects the selected columns to include:
-
-```
-ts_ns
-bid_px_1
-ask_px_1
-bid_sz_1
-ask_sz_1
+```shell
+python scripts/benchmark_arrow.py --input /path/to/parquet/dataset --batch-size 1000000
 ```
 
-The raw L2 Arrow path derives `mid`, `queue_imbalance` and `spread_bps` from those columns. Additional columns can be retained in the scanner when a later feature stage needs them.
-
-Example:
-
-```bash
-python scripts/benchmark_arrow.py \
-  --input /path/to/parquet/dataset \
-  --batch-size 1000000
-```
-
-For a reproducible real-data benchmark, record the dataset identifier, date range, symbols, machine CPU/RAM, Python version, PyArrow version and the exact command alongside the resulting JSON. Proprietary or exchange data is intentionally not included in this repository.
+Record the dataset identifier, date range, symbols, machine specifications, library versions and exact command for each real-data measurement. Only use data that you are permitted to access and process. No pretrained model is required; the example models are trained from scratch.
 
 ## q-like operations
 
-`src/tkan_engine/arrow_pipeline.py` provides small helpers with familiar q-style names:
+`src/tkan_engine/arrow_pipeline.py` provides small Arrow-backed helpers:
 
-- `q_where`: filter rows by an Arrow expression
-- `q_select`: project a set of columns
-- `q_within`: inclusive numeric range filter
-- `q_by`: grouped Arrow aggregation
+- `q_where`: filter rows using an Arrow expression.
+- `q_select`: keep the requested columns.
+- `q_within`: filter an inclusive numeric range.
+- `q_by`: group rows and apply Arrow aggregations.
 
-These helpers are thin wrappers around Apache Arrow operations rather than a q interpreter.
+These helpers cover a useful subset of q-style operations. They are not a q interpreter or a replacement for a production KDB+/q deployment.
 
 ## Run DDP
 
-The training code is compatible with `torchrun`.
+Two-rank CPU smoke test:
 
-Two-rank CPU smoke benchmark:
-
-```bash
-torchrun --standalone --nproc_per_node=2 \
-  scripts/ddp_benchmark.py \
-  --distributed \
-  --events 10000 \
-  --steps 10 \
-  --batch-size 128
+```shell
+torchrun --standalone --nproc_per_node=2 scripts/ddp_benchmark.py --distributed --events 10000 --steps 10 --batch-size 128
 ```
 
-CUDA training can use the same command on a machine with multiple visible GPUs. Set `CUDA_VISIBLE_DEVICES` as needed for the target system.
+The same benchmark script selects CUDA when it is available and supports mixed precision and fused AdamW when supported. See the A100 workflow below for measured single-/multi-GPU runs.
 
-The distributed training loop uses `DistributedSampler`. Adaptive KAN spline state is non-gradient state, so the updated grid and spline coefficients are explicitly broadcast after grid updates. The current design uses rank 0's sampled batch as the source of the adaptive grid; a fully distributed quantile/statistic update is left as a future optimization.
+### A100 benchmarks and profiling
 
-## Profile the GPU path
+The manual workflow `.github/workflows/gpu-validation.yml` is configured for the self-hosted labels `Linux`, `X64`, `gpu`, `a100`, and `integrator-1`. It checks CUDA, runs the test suite and event stress test, measures 1-, 2- and (when available) 4-GPU training, and saves a PyTorch profiler report.
 
-For a PyTorch profiler run:
+The workflow needs a matching runner that is online and has a working NVIDIA driver and CUDA-enabled PyTorch installation. For lower-level arithmetic-intensity counters, use Nsight Compute when it is installed on the GPU host; the PyTorch profiler is operator-level profiling and is not itself a hardware-counter measurement.
 
-```bash
-python scripts/profile_gpu.py \
-  --batch 256 \
-  --seq-len 64 \
-  --features 15 \
-  --hidden 128 \
-  --steps 100
-```
+## Continuous integration
 
-For kernel-level arithmetic-intensity analysis, use Nsight Systems and Nsight Compute on the actual NVIDIA target machine. The repository contains the expected profiling workflow in `docs/PROFILING.md`.
+The CI workflow checks Python 3.10, 3.11 and 3.12; runs unit tests and the nonlinear inversion benchmark; executes 5M- and 300M-event Arrow paths; and runs a two-rank CPU DDP smoke test. The report job generates the eight plotted SVGs from the saved JSON values and attaches PNG copies as an action artifact.
 
-No GPU performance number is stored in this repository because the available development environment did not have CUDA.
+## Figures and saved results
 
-## Tests and continuous integration
+The eight experiment plots are generated with Matplotlib from saved JSON results by:
 
-GitHub Actions runs:
-
-- pytest on Python 3.10, 3.11 and 3.12
-- the 3,000-event nonlinear benchmark in each Python job
-- a 5M-event Arrow smoke benchmark
-- the 300M-event Arrow benchmark
-- a two-rank CPU DDP smoke benchmark
-
-The workflow cancels stale pull-request runs so that benchmark results are tied to the current branch head.
-
-## Repository layout
-
-```
-src/tkan_engine/
-    arrow_pipeline.py
-    data.py
-    features.py
-    kan.py
-    model.py
-    training.py
-
-scripts/
-    benchmark_arrow.py
-    benchmark_model.py
-    ddp_benchmark.py
-    ddp_smoke.py
-    generate_demo.py
-    inversion_benchmark.py
-    profile_gpu.py
-    render_report.py
-    self_check.py
-    train.py
-
-tests/
-    test_core.py
-
-configs/
-    default.yaml
-
-docs/
-    ARCHITECTURE.md
-    DATA_SCALE.md
-    EXPERIMENTS.md
-    PROFILING.md
-    REPRODUCIBILITY.md
-    BENCHMARK_STATUS.md
-
-results/
-    ci_inversion_3000.json
-    inversion_benchmark.json
-    arrow_benchmark_300m.json
-    ddp_benchmark_cpu.json
-```
-
-## Regenerate the figures
-
-The committed figures are derived from the JSON result files. To regenerate them, install the optional visualization dependencies and run:
-
-```bash
-python -m pip install -e ".[viz]"
+```shell
+python -m pip install "matplotlib>=3.8"
 python scripts/render_report.py
 ```
 
-The script writes fresh PNG copies under `results/figures/`. The benchmark numbers themselves come from the JSON files, not from the figure files.
+The SVG plots are written under `docs/figures/`, and PNG copies under `results/figures/`. Architecture and feature diagrams are separate from the charts and are retained as supporting documentation. There are no terminal snapshots or a cover image in the README.
 
-## Reproducibility notes
+## Scope and limits
 
-All synthetic generators in this repository are seeded. The Arrow stress generator keeps continuity of the midpoint state across batches. The nonlinear benchmark uses a fixed NumPy seed and fixed model seeds.
-
-The benchmark figures in this README are derived from measured command output recorded in the JSON files under `results/`. They are not illustrative values.
-
-For a clean machine, start with `docs/REPRODUCIBILITY.md` after installation.
-
-## Scope and limitations
-
-This repository is a research implementation, not a production market-data system.
-
-It does not contain exchange data, broker connectivity, order execution code, or a claim of financial performance. The 300M-event measurement is a synthetic Arrow stress test of the columnar processing path.
-
-The Temporal KAN implementation is intended to make the nonlinear edge-function and temporal-mixing ideas concrete and testable. It is not presented as a drop-in replacement for a production KDB+/q stack.
-
-## Third-party source and attribution
-
-The project was informed by the supplied upstream repositories:
-
-- `Blealtan/efficient-kan`
-- `letianzj/QuantResearch`
-- `jdb78/pytorch-forecasting`, which GitHub currently resolves to `sktime/pytorch-forecasting`
-
-The exact inspected commit SHAs, licenses and attribution boundaries are recorded in `THIRD_PARTY_NOTICES.md`.
-
+This is a research and benchmark project, not a production market-data or trading system. It has no exchange connection or order execution code. Synthetic test results do not establish trading returns or generalization to real markets. The Arrow 300M result demonstrates streaming columnar processing on generated data; a separate licensed replay dataset is required to measure real-market behavior.

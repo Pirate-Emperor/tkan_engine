@@ -26,3 +26,4 @@ data/
 # Local training outputs; committed benchmark JSON files remain tracked
 checkpoints/
 logs/
+results/figures/

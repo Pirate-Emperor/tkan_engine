@@ -1,54 +1,43 @@
-# Benchmark status
+# Benchmark and test status
 
-Last verified branch head:
+## Previously recorded CI baseline
 
-`4b60f719832b38568bb796bc3f674700df49b37b`
+The published baseline was measured in [GitHub Actions run 22](https://github.com/SpryzenHell/tkan_engine/actions/runs/37154074480), from 3 October 2026. It used Ubuntu 24.04, Python 3.12.14, PyTorch 2.14.1 and PyArrow 25.0.1.
 
-GitHub Actions run: **37154074480**
+The prior test matrix passed on Python 3.10, 3.11 and 3.12. It reported 7 passed and 2 skipped in each Python job before the extra edge-case tests were added. Re-check the current run in Actions for the result of the expanded suite.
 
-## Test matrix
+### Nonlinear inversion
 
-Python 3.10, 3.11 and 3.12 all completed successfully. Each test job reported 7 passed and 2 skipped.
+| Model | Parameters | Test RMSE (bps) | Test IC |
+|---|---:|---:|---:|
+| MLP | 801 | 0.8717509 | 0.7501843 |
+| T-KAN | 3,266 | 0.5374402 | 0.8640131 |
 
-## Nonlinear inversion
+### Arrow stream benchmark
 
-The CI benchmark used 3,000 events, sequence length 16, 5 epochs, batch size 128, hidden dimension 16 and grid size 6.
+| Events | Batches | Batch size | Elapsed (s) | Events/s |
+|---:|---:|---:|---:|---:|
+| 5,000,000 | 20 | 250,000 | 0.475624 | 10,512,495.9 |
+| 300,000,000 | 300 | 1,000,000 | 19.174390 | 15,645,869.3 |
 
-| Model | Test RMSE (bps) | Test IC |
-|---|---:|---:|
-| MLP | 0.8717508959 | 0.7501842616 |
-| T-KAN | 0.5374401946 | 0.8640131220 |
+These are synthetic streaming tests, not real market-message replay results.
 
-## Arrow
+### DDP CPU smoke test
 
-The full stress job completed successfully:
+| World size | Device | Global samples | Throughput (samples/s) | Wall time (s) |
+|---:|---|---:|---:|---:|
+| 2 | CPU | 2,560 | 104.8995 | 24.404307 |
 
-| Metric | Value |
-|---|---:|
-| Events | 300,000,000 |
-| Batches | 300 |
-| Batch size | 1,000,000 |
-| Elapsed | 19.174389979 s |
-| Events/s | 15,645,869.3251 |
-| Selected rows | 300,000,000 |
-| Checksum | 1,509,462,417.5703695 |
+This verifies the basic distributed path but does not measure GPU scaling.
 
-The 5M smoke job in the same run processed 5,000,000 events in 0.475624442 s at 10,512,495.9074 events/s.
+## GPU DDP and profiler
 
-## DDP CPU smoke
+<!-- GPU_RESULTS_START -->
+No A100 throughput or arithmetic-intensity result has been measured in this checkout. The manual GPU workflow records one-, two-, and four-GPU throughput where the devices are available, along with mixed-precision settings, peak allocated memory, and a PyTorch operator profile. Hardware-counter arithmetic intensity still requires an Nsight Compute run on a compatible host.
+<!-- GPU_RESULTS_END -->
 
-The two-rank distributed job completed successfully:
+## Current test coverage
 
-| Metric | Value |
-|---|---:|
-| World size | 2 |
-| Device | CPU |
-| Global samples | 2,560 |
-| Throughput | 104.8995173 samples/s |
-| Wall time | 24.404306757 s |
+The CI suite includes tests for B-spline basis shape/sums, forward and backward gradients, adaptive spline grids, temporal model output shapes, finite LOB features, deterministic stream continuity, valid batch counts, sequence alignment, invalid input handling, Arrow filtering/grouping/range selection, stale columns, raw integer sizes, empty streams and missing input columns.
 
-This is a CPU smoke benchmark. It must not be presented as GPU scaling.
-
-## GPU
-
-No GPU throughput or arithmetic-intensity number is committed. The repository contains the profiler and the DDP benchmark harness for use on an NVIDIA system.
+CI runs pytest on Python 3.10, 3.11 and 3.12, plus the nonlinear inversion benchmark, 5M-event Arrow smoke run, 300M-event Arrow stress run and two-rank CPU DDP smoke run. The manual A100 workflow is separate and only runs when dispatched with the required self-hosted runner online.
