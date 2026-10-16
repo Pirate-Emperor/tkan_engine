@@ -19,7 +19,7 @@ Source code is in `src/tkan_engine`; runnable commands are in `scripts/`.
 
 ## Measured results
 
-The latest complete code-validation run is [GitHub Actions run 38925481878](https://github.com/SpryzenHell/tkan_engine/actions/runs/38925481878), completed on 16 October 2026. All seven jobs passed: the Python 3.10, 3.11 and 3.12 test jobs, the 5M and 300M Arrow runs, the two-rank CPU DDP smoke test, and the plot report. Each Python matrix job reported 23 passed and 10 skipped; the Arrow jobs separately exercised the Arrow pipeline with PyArrow 26.0.0. The inversion measurements used Python 3.10.22 and PyTorch 2.14.1; the Arrow and DDP timings used Python 3.12.15 on Ubuntu 24.04. Timings vary by host.
+The complete validation is recorded in [GitHub Actions run 38927224698](https://github.com/SpryzenHell/tkan_engine/actions/runs/38927224698), completed on 16 October 2026. All seven jobs passed: the Python 3.10, 3.11 and 3.12 test jobs, the 5M and 300M Arrow runs, the two-rank CPU DDP smoke test, and the plot report. Each Python version reported 33 passed and 0 skipped with the full test extras installed, including PyArrow 26.0.0. The inversion run used Python 3.10.22 and PyTorch 2.14.1; the Arrow and DDP runs used Python 3.12.15, PyArrow 26.0.0, and PyTorch 2.14.1 on Ubuntu 24.04. Timings vary by host.
 
 ### Controlled nonlinear inversion
 
@@ -50,8 +50,8 @@ The stress generator creates synthetic event batches and runs columnar feature c
 
 | Events | Batch size | Batches | Elapsed time | Throughput | Selected rows |
 |---:|---:|---:|---:|---:|---:|
-| 5,000,000 | 250,000 | 20 | 0.403 s | 12.420M events/s | 5,000,000 |
-| 300,000,000 | 1,000,000 | 300 | 26.670 s | 11.249M events/s | 300,000,000 |
+| 5,000,000 | 250,000 | 20 | 0.513 s | 9.752M events/s | 5,000,000 |
+| 300,000,000 | 1,000,000 | 300 | 26.934 s | 11.138M events/s | 300,000,000 |
 
 The 300M-event result is a synthetic Arrow stress test, not a claim that 300M real exchange messages were replayed. Its checksum was `1,509,462,417.5703695`. The two timings come from separate CI jobs and should not be treated as a controlled hardware scaling comparison.
 
@@ -65,7 +65,7 @@ Saved run data: `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_3
 
 ### Distributed training smoke test
 
-The recorded two-rank DDP smoke test ran on CPU. It processed 2,560 samples in 27.309 seconds at 93.741 samples/second. This verifies a basic distributed execution path, **not** multi-GPU scaling.
+The recorded two-rank DDP smoke test ran on CPU. It processed 2,560 samples in 21.005 seconds at 121.878 samples/second. This verifies a basic distributed execution path, **not** multi-GPU scaling.
 
 ![Two-rank CPU DDP smoke result](docs/figures/ddp_cpu.svg)
 
@@ -74,7 +74,7 @@ The exact metrics are in `results/ddp_benchmark_cpu.json`.
 ### A100 training results
 
 <!-- GPU_RESULTS_START -->
-No A100 throughput or GPU arithmetic-intensity result has been recorded in this checkout. To measure it, manually launch the `tkan-engine-a100-validation` workflow from the repository where `integrator-1` is registered. That workflow checks out this project, validates the visible A100 40GB devices, runs the test suite and benchmarks, and uploads the metrics and plots as an artifact. CPU DDP results are not a substitute for this measurement.
+No A100 throughput or GPU arithmetic-intensity result has been recorded in this checkout. The `integrator-1` runner was offline during this validation on 16 October 2026, so no GPU metric is claimed. To measure it, manually launch the `tkan-engine-a100-validation` workflow from the repository where that runner is registered. The workflow checks out this project, validates the visible A100 40GB devices, runs the test suite and benchmarks, and uploads the metrics and plots as an artifact. CPU DDP results are not a substitute for this measurement.
 <!-- GPU_RESULTS_END -->
 
 ## Installation

@@ -1,11 +1,11 @@
 {
-  "ci_run_id": 38925481878,
+  "ci_run_id": 38927224698,
   "job": "arrow-smoke",
   "events": 5000000,
   "batches": 20,
   "batch_size": 250000,
-  "elapsed_s": 0.4025910969999984,
-  "events_per_s": 12419549.357297437,
+  "elapsed_s": 0.5127053069999761,
+  "events_per_s": 9752190.842838757,
   "selected_rows": 5000000,
   "checksum": 25165450.69060454,
   "environment": {
@@ -14,6 +14,6 @@
     "pyarrow": "26.0.0",
     "torch": "2.14.1"
   },
-  "source_commit": "5b9a6d37b677921b865273325b828753b7b1766e",
+  "source_commit": "846db68cb089da5f6f05dbf06ab2a8163f46fccc",
   "measurement_note": "Single synthetic stream run. Throughput is host-dependent."
 }

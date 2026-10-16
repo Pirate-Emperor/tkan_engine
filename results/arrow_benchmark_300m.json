@@ -1,11 +1,11 @@
 {
-  "ci_run_id": 38925481878,
+  "ci_run_id": 38927224698,
   "job": "arrow-300m",
   "events": 300000000,
   "batches": 300,
   "batch_size": 1000000,
-  "elapsed_s": 26.670037239999985,
-  "events_per_s": 11248578.219083138,
+  "elapsed_s": 26.934001238000008,
+  "events_per_s": 11138337.647981655,
   "selected_rows": 300000000,
   "checksum": 1509462417.5703695,
   "environment": {
@@ -14,6 +14,6 @@
     "pyarrow": "26.0.0",
     "torch": "2.14.1"
   },
-  "source_commit": "5b9a6d37b677921b865273325b828753b7b1766e",
+  "source_commit": "846db68cb089da5f6f05dbf06ab2a8163f46fccc",
   "measurement_note": "Single synthetic stream run. The 300M rows are generated test events, not recorded exchange messages. Throughput is host-dependent."
 }

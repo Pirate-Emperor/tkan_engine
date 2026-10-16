@@ -6,7 +6,7 @@ concurrency:
 
 on:
   push:
-    branches: ["main", "revamp/**"]
+    branches: ["main"]
   pull_request:
 
 permissions:
@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   test:
+    if: ${{ github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Refresh benchmark plots') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,6 +30,7 @@ jobs:
       - run: python scripts/inversion_benchmark.py --events 3000 --epochs 5 --batch-size 128 --hidden 16 --grid-size 6
 
   arrow-smoke:
+    if: ${{ github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Refresh benchmark plots') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +42,7 @@ jobs:
       - run: python scripts/benchmark_arrow.py --events 5000000 --batch-size 250000
 
   arrow-300m:
+    if: ${{ github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Refresh benchmark plots') }}
     runs-on: ubuntu-latest
     needs: arrow-smoke
     steps:
@@ -52,6 +55,7 @@ jobs:
       - run: python scripts/benchmark_arrow.py --events 300000000 --batch-size 1000000
 
   ddp-cpu-smoke:
+    if: ${{ github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Refresh benchmark plots') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
