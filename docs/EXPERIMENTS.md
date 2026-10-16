@@ -2,31 +2,42 @@
 
 ## Controlled nonlinear inversion
 
-The target is generated from the order-flow imbalance feature and its change:
+The signal uses a stationary AR(1) process with persistence 0.85, transformed through tanh to form order-flow imbalance (OFI). The target is:
 
 ```text
-0.9*sin(2.6*OFI) + 0.55*OFI^3 + 0.25*dOFI + N(0, 0.08^2)
+0.9*sin(2.6*OFI[t]) + 0.55*OFI[t]^3
++ 0.25*(OFI[t] - OFI[t-1]) + N(0, noise_std^2)
 ```
 
-The latest recorded experiment used 3,000 observations, 16-step sequences, a chronological 80/20 split, five epochs, and a batch size of 128. It was measured in [GitHub Actions run 38927224698](https://github.com/SpryzenHell/tkan_engine/actions/runs/38927224698); all seven jobs in that run passed.
+The default target-noise standard deviation is 0.08. The input's five-observation moving average is trailing and uses only present and earlier OFI values. The split is chronological. This experiment measures a known synthetic target; it is not an exchange replay or trading backtest.
 
+<!-- INVERSION_METRICS_START -->
 | Model | Parameters | Test MSE (bps²) | Test RMSE (bps) | Test IC |
 |---|---:|---:|---:|---:|
-| MLP | 801 | 0.7599496 | 0.8717509 | 0.7501843 |
-| T-KAN | 3,266 | 0.2888439 | 0.5374420 | 0.8640117 |
+| MLP | — | — | — | — |
+| T-KAN | — | — | — | — |
+<!-- INVERSION_METRICS_END -->
 
-The T-KAN result is lower error on this generated target. This is evidence for this controlled experiment only; it is not an exchange-data result or a trading-alpha claim.
+Source: results/ci_inversion_3000.json.
 
-Source: `results/ci_inversion_3000.json`.
+## Seed and noise sensitivity
+
+The companion sensitivity sweep repeats the model comparison across several seeds and target-noise levels. The generated report includes mean and standard deviation for test RMSE and information coefficient, paired per-seed RMSE differences, training times, and all individual run metrics.
+
+<!-- INVERSION_SWEEP_START -->
+The sweep table and four plots will be filled from results/inversion_sweep.json by the CI report step.
+<!-- INVERSION_SWEEP_END -->
 
 ## Arrow stream sizes
 
 The 5M-event and 300M-event jobs both run a deterministic synthetic Arrow stream. They use different batch sizes, and the measurements were taken in separate CI jobs.
 
+<!-- ARROW_METRICS_START -->
 | Events | Batch size | Batches | Elapsed (s) | Events/s | Selected rows | Checksum |
 |---:|---:|---:|---:|---:|---:|---:|
 | 5,000,000 | 250,000 | 20 | 0.512705 | 9,752,190.8 | 5,000,000 | 25,165,450.6906 |
 | 300,000,000 | 1,000,000 | 300 | 26.934001 | 11,138,337.6 | 300,000,000 | 1,509,462,417.5704 |
+<!-- ARROW_METRICS_END -->
 
 The process builds and releases one batch at a time. These counts describe generated rows, not a replay of real market messages. They demonstrate the Arrow path's ability to work across a stream larger than a single in-memory batch.
 
@@ -36,9 +47,11 @@ Sources: `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_300m.jso
 
 The saved smoke benchmark used two Gloo ranks on CPU, with 2,560 total samples over ten measured steps:
 
+<!-- DDP_METRICS_START -->
 | Device | Ranks | Wall time (s) | Global samples/s |
 |---|---:|---:|---:|
 | CPU | 2 | 21.004563 | 121.8783 |
+<!-- DDP_METRICS_END -->
 
 This is a distributed correctness smoke test. Do not use it as a GPU throughput or scaling claim.
 
