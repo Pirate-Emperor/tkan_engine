@@ -81,6 +81,7 @@ def main() -> int:
     body = format_gpu_table(rows)
     replace_block(root / "README.md", body)
     replace_block(root / "docs/BENCHMARK_STATUS.md", body)
+    replace_block(root / "docs/EXPERIMENTS.md", body)
     print(f"Updated the GPU report using {len(rows)} saved GPU run(s)")
     return 0
 

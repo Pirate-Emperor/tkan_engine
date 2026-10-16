@@ -74,7 +74,7 @@ The exact metrics are in `results/ddp_benchmark_cpu.json`.
 ### A100 training results
 
 <!-- GPU_RESULTS_START -->
-No A100 throughput or GPU arithmetic-intensity result has been recorded in this checkout. Run the manual **A100 GPU benchmark** workflow on the matching online self-hosted runner to measure single-, two-, and four-GPU training throughput. CPU DDP results are not a substitute for this measurement.
+No A100 throughput or GPU arithmetic-intensity result has been recorded in this checkout. To measure it, manually launch the `tkan-engine-a100-validation` workflow from the repository where `integrator-1` is registered. That workflow checks out this project, validates the visible A100 40GB devices, runs the test suite and benchmarks, and uploads the metrics and plots as an artifact. CPU DDP results are not a substitute for this measurement.
 <!-- GPU_RESULTS_END -->
 
 ## Installation
@@ -190,7 +190,7 @@ The same benchmark script selects CUDA when it is available and supports mixed p
 
 ### A100 benchmarks and profiling
 
-The manual workflow `.github/workflows/gpu-validation.yml` is configured for the self-hosted labels `Linux`, `X64`, `gpu`, `a100`, and `integrator-1`. It checks CUDA, runs the test suite and event stress test, measures 1-, 2- and (when available) 4-GPU training, and saves a PyTorch profiler report.
+The manual `tkan-engine-a100-validation` workflow must be launched from the repository where the self-hosted runner `integrator-1` is registered. It checks out this project at the selected branch or commit, confirms the A100 40GB devices and CUDA setup, runs the tests and Arrow stress tests, measures 1-, 2- and (when available) 4-GPU training, and saves a PyTorch profiler report. It uploads result JSON files, plots, and the updated benchmark summary as an artifact.
 
 The workflow needs a matching runner that is online and has a working NVIDIA driver and CUDA-enabled PyTorch installation. For lower-level arithmetic-intensity counters, use Nsight Compute when it is installed on the GPU host; the PyTorch profiler is operator-level profiling and is not itself a hardware-counter measurement.
 
