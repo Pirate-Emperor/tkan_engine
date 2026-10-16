@@ -263,7 +263,7 @@ python -m pip install "matplotlib>=3.8"
 python scripts/render_report.py
 ```
 
-The SVG plots are written under `docs/figures/`, and PNG copies under `results/figures/`. Architecture and feature diagrams are separate from the charts and are retained as supporting documentation. There are no terminal snapshots or a cover image in the README.
+The SVG plots are written under `docs/figures/`, and PNG copies under `results/figures/`. Architecture and feature diagrams are separate from the charts and are retained as supporting documentation.
 
 ## Scope and limits
 
