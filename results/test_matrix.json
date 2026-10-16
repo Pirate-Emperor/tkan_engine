@@ -1,24 +1,24 @@
 {
-  "ci_run_id": 38946974694,
-  "source_commit": "c3a888c5edf7a81c3f0d6533b16ea1def6eb7ffc",
+  "ci_run_id": 38966773585,
+  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e",
   "python_versions": {
     "3.10": {
-      "tests": 50,
-      "passed": 50,
+      "tests": 52,
+      "passed": 52,
       "skipped": 0,
       "failures": 0,
       "errors": 0
     },
     "3.11": {
-      "tests": 50,
-      "passed": 50,
+      "tests": 52,
+      "passed": 52,
       "skipped": 0,
       "failures": 0,
       "errors": 0
     },
     "3.12": {
-      "tests": 50,
-      "passed": 50,
+      "tests": 52,
+      "passed": 52,
       "skipped": 0,
       "failures": 0,
       "errors": 0

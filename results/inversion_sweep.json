@@ -37,8 +37,8 @@
         "test_ic": 0.7957630427669594,
         "parameters": 3266
       },
-      "mlp_seconds": 0.9573539060000016,
-      "tkan_seconds": 0.6598187879999955,
+      "mlp_seconds": 1.3392745479999917,
+      "tkan_seconds": 0.7411291139999889,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -57,8 +57,8 @@
         "test_ic": 0.7160538748256097,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04430656499999941,
-      "tkan_seconds": 0.572185202,
+      "mlp_seconds": 0.065227182000001,
+      "tkan_seconds": 0.6665750389999943,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -77,8 +77,8 @@
         "test_ic": 0.7257363872302713,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04372661000000022,
-      "tkan_seconds": 0.5877596050000022,
+      "mlp_seconds": 0.06385263100000316,
+      "tkan_seconds": 0.8290037689999963,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -97,8 +97,8 @@
         "test_ic": 0.7330138287517775,
         "parameters": 3266
       },
-      "mlp_seconds": 0.043763265999999135,
-      "tkan_seconds": 0.5644598180000031,
+      "mlp_seconds": 0.0634833650000104,
+      "tkan_seconds": 0.6470472910000069,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -117,8 +117,8 @@
         "test_ic": 0.745192380078398,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04393243000000524,
-      "tkan_seconds": 0.5808394660000005,
+      "mlp_seconds": 0.06316650700000537,
+      "tkan_seconds": 0.6449921939999967,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -137,8 +137,8 @@
         "test_ic": 0.7934706847552337,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04815248599999933,
-      "tkan_seconds": 0.6237668409999984,
+      "mlp_seconds": 0.06399394900000743,
+      "tkan_seconds": 0.6629933570000048,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -157,8 +157,8 @@
         "test_ic": 0.7150712719790847,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04455701299999504,
-      "tkan_seconds": 0.6209622929999981,
+      "mlp_seconds": 0.063335935000012,
+      "tkan_seconds": 0.6435097239999976,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -177,8 +177,8 @@
         "test_ic": 0.7228682007947622,
         "parameters": 3266
       },
-      "mlp_seconds": 0.044335093000000825,
-      "tkan_seconds": 0.6407793499999954,
+      "mlp_seconds": 0.06340413499999897,
+      "tkan_seconds": 0.6418999099999922,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -197,8 +197,8 @@
         "test_ic": 0.7295595454198192,
         "parameters": 3266
       },
-      "mlp_seconds": 0.0449540259999992,
-      "tkan_seconds": 0.5989410000000106,
+      "mlp_seconds": 0.06317504800000506,
+      "tkan_seconds": 0.6377484960000004,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -217,8 +217,8 @@
         "test_ic": 0.7428653185711444,
         "parameters": 3266
       },
-      "mlp_seconds": 0.045007135999995285,
-      "tkan_seconds": 0.584328534000008,
+      "mlp_seconds": 0.06324740400000906,
+      "tkan_seconds": 0.6497546430000085,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -237,8 +237,8 @@
         "test_ic": 0.7845772434479028,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04416651799999727,
-      "tkan_seconds": 0.5845548260000015,
+      "mlp_seconds": 0.06341053500000271,
+      "tkan_seconds": 0.6405811719999974,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -257,8 +257,8 @@
         "test_ic": 0.7089005278299605,
         "parameters": 3266
       },
-      "mlp_seconds": 0.043656768000005286,
-      "tkan_seconds": 0.5700495189999941,
+      "mlp_seconds": 0.06313004100000796,
+      "tkan_seconds": 0.6413925199999966,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -277,8 +277,8 @@
         "test_ic": 0.7125644297710215,
         "parameters": 3266
       },
-      "mlp_seconds": 0.04436029000000019,
-      "tkan_seconds": 0.5828800279999911,
+      "mlp_seconds": 0.0633072730000066,
+      "tkan_seconds": 0.6455151520000015,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -297,8 +297,8 @@
         "test_ic": 0.7186361788317636,
         "parameters": 3266
       },
-      "mlp_seconds": 0.044658289000011564,
-      "tkan_seconds": 0.5890235629999978,
+      "mlp_seconds": 0.06291290999999433,
+      "tkan_seconds": 0.695768134000005,
       "train_sequences": 2387,
       "test_sequences": 597
     },
@@ -317,8 +317,8 @@
         "test_ic": 0.7340097677728646,
         "parameters": 3266
       },
-      "mlp_seconds": 0.045263051999995696,
-      "tkan_seconds": 0.5872698809999974,
+      "mlp_seconds": 0.06334438700000078,
+      "tkan_seconds": 0.6619869840000092,
       "train_sequences": 2387,
       "test_sequences": 597
     }
@@ -434,6 +434,6 @@
     }
   ],
   "notes": "Exploratory synthetic-data sensitivity analysis. Means and sample standard deviations describe the selected seeds; they are not confidence intervals, exchange-data results, or trading-performance claims.",
-  "ci_run_id": 38946974694,
-  "source_commit": "c3a888c5edf7a81c3f0d6533b16ea1def6eb7ffc"
+  "ci_run_id": 38966773585,
+  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e"
 }
