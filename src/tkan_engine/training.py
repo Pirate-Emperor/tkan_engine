@@ -33,13 +33,15 @@ def setup_ddp(distributed: bool = False):
     world = int(os.environ.get("WORLD_SIZE", "1"))
     local_rank = int(os.environ.get("LOCAL_RANK", "0"))
 
+    # Select the local CUDA device before initializing NCCL. Otherwise
+    # multi-rank startup may create communicators against the wrong device.
+    if torch.cuda.is_available():
+        torch.cuda.set_device(local_rank)
+
     if world > 1 and not dist.is_initialized():
         dist.init_process_group(
             backend="nccl" if torch.cuda.is_available() else "gloo"
         )
-
-    if torch.cuda.is_available():
-        torch.cuda.set_device(local_rank)
 
     return rank, world, local_rank
 
