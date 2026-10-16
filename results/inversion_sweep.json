@@ -1,0 +1,439 @@
+{
+  "experiment": "next-step T-KAN versus MLP sensitivity to seed and target noise",
+  "events": 3000,
+  "sequence_length": 16,
+  "epochs": 5,
+  "batch_size": 128,
+  "hidden": 16,
+  "grid_size": 6,
+  "seeds": [
+    123,
+    321,
+    456,
+    789,
+    987
+  ],
+  "noise_levels": [
+    0.04,
+    0.08,
+    0.16
+  ],
+  "target_units": "synthetic impact basis points",
+  "input_features": "OFI, OFI change, and causal five-observation trailing mean",
+  "target_definition": "0.9*sin(2.6*OFI[t]) + 0.55*OFI[t]^3 + 0.25*(OFI[t]-OFI[t-1]) + Gaussian noise; OFI is tanh of a stationary AR(1) series with phi=0.85",
+  "runs": [
+    {
+      "seed": 123,
+      "noise_std": 0.04,
+      "mlp": {
+        "test_mse_bps2": 0.33609896898269653,
+        "test_rmse_bps": 0.5797404324201448,
+        "test_ic": 0.7843735836229415,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.3204863965511322,
+        "test_rmse_bps": 0.566115179580209,
+        "test_ic": 0.7957630427669595,
+        "parameters": 3266
+      },
+      "mlp_seconds": 1.352850766000003,
+      "tkan_seconds": 1.0253749820000024,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 321,
+      "noise_std": 0.04,
+      "mlp": {
+        "test_mse_bps2": 0.4152648150920868,
+        "test_rmse_bps": 0.644410439931017,
+        "test_ic": 0.707210497415121,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.40452802181243896,
+        "test_rmse_bps": 0.6360251738826372,
+        "test_ic": 0.7160538748256098,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09187101800000619,
+      "tkan_seconds": 0.9883860650000003,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 456,
+      "noise_std": 0.04,
+      "mlp": {
+        "test_mse_bps2": 0.3995400071144104,
+        "test_rmse_bps": 0.6320917711174623,
+        "test_ic": 0.7148301259083099,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.38549932837486267,
+        "test_rmse_bps": 0.6208859221909148,
+        "test_ic": 0.7257363872302718,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09107445700000483,
+      "tkan_seconds": 0.8958306260000057,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 789,
+      "noise_std": 0.04,
+      "mlp": {
+        "test_mse_bps2": 0.39768704771995544,
+        "test_rmse_bps": 0.6306243316903936,
+        "test_ic": 0.7250741698147748,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.38785362243652344,
+        "test_rmse_bps": 0.6227789515040818,
+        "test_ic": 0.7330138287517777,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09045820400000082,
+      "tkan_seconds": 0.8944136870000108,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 987,
+      "noise_std": 0.04,
+      "mlp": {
+        "test_mse_bps2": 0.3848763108253479,
+        "test_rmse_bps": 0.6203840027155342,
+        "test_ic": 0.7445400791828061,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.38718467950820923,
+        "test_rmse_bps": 0.6222416568409811,
+        "test_ic": 0.7451923800783979,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09326816900001234,
+      "tkan_seconds": 0.8991049209999886,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 123,
+      "noise_std": 0.08,
+      "mlp": {
+        "test_mse_bps2": 0.34029239416122437,
+        "test_rmse_bps": 0.5833458615274685,
+        "test_ic": 0.7817056995860204,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.32426363229751587,
+        "test_rmse_bps": 0.5694415091100365,
+        "test_ic": 0.7934706847552334,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.0916636780000033,
+      "tkan_seconds": 0.899242299000008,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 321,
+      "noise_std": 0.08,
+      "mlp": {
+        "test_mse_bps2": 0.41763296723365784,
+        "test_rmse_bps": 0.6462452841094145,
+        "test_ic": 0.7059443338361436,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.40661191940307617,
+        "test_rmse_bps": 0.6376612889325148,
+        "test_ic": 0.7150712719790847,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09275358600000061,
+      "tkan_seconds": 0.8945071810000087,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 456,
+      "noise_std": 0.08,
+      "mlp": {
+        "test_mse_bps2": 0.40472307801246643,
+        "test_rmse_bps": 0.6361784954024039,
+        "test_ic": 0.7116014204420857,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.3901401460170746,
+        "test_rmse_bps": 0.62461199637621,
+        "test_ic": 0.7228682007947622,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09136071099999299,
+      "tkan_seconds": 0.9194641560000036,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 789,
+      "noise_std": 0.08,
+      "mlp": {
+        "test_mse_bps2": 0.40397948026657104,
+        "test_rmse_bps": 0.6355938013122618,
+        "test_ic": 0.7217304384224413,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.3943232297897339,
+        "test_rmse_bps": 0.6279516142106284,
+        "test_ic": 0.7295595454198192,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09165648399999782,
+      "tkan_seconds": 0.9685075470000015,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 987,
+      "noise_std": 0.08,
+      "mlp": {
+        "test_mse_bps2": 0.3907962739467621,
+        "test_rmse_bps": 0.6251370041413019,
+        "test_ic": 0.7421770968766137,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.3933691680431366,
+        "test_rmse_bps": 0.6271914923236257,
+        "test_ic": 0.7428653185711444,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09139060799999754,
+      "tkan_seconds": 0.9329354960000131,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 123,
+      "noise_std": 0.16,
+      "mlp": {
+        "test_mse_bps2": 0.3585514724254608,
+        "test_rmse_bps": 0.598791676984125,
+        "test_ic": 0.7721019692658866,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.34159836173057556,
+        "test_rmse_bps": 0.5844641663357777,
+        "test_ic": 0.7845772434479034,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09192358500000353,
+      "tkan_seconds": 0.9432857970000015,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 321,
+      "noise_std": 0.16,
+      "mlp": {
+        "test_mse_bps2": 0.43264928460121155,
+        "test_rmse_bps": 0.6577608110865313,
+        "test_ic": 0.6990163323297384,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.4207836091518402,
+        "test_rmse_bps": 0.6486783556986007,
+        "test_ic": 0.7089005278299606,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09194469300000208,
+      "tkan_seconds": 0.9756500139999957,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 456,
+      "noise_std": 0.16,
+      "mlp": {
+        "test_mse_bps2": 0.42590710520744324,
+        "test_rmse_bps": 0.65261558762218,
+        "test_ic": 0.7003912430417268,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.4099896550178528,
+        "test_rmse_bps": 0.6403043456184354,
+        "test_ic": 0.7125644297710212,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09193713999999886,
+      "tkan_seconds": 0.936292306999988,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 789,
+      "noise_std": 0.16,
+      "mlp": {
+        "test_mse_bps2": 0.4263836145401001,
+        "test_rmse_bps": 0.6529805621456891,
+        "test_ic": 0.710959937960223,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.4169115424156189,
+        "test_rmse_bps": 0.6456868764467951,
+        "test_ic": 0.7186361788317639,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.0928262050000086,
+      "tkan_seconds": 0.9454406849999941,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    },
+    {
+      "seed": 987,
+      "noise_std": 0.16,
+      "mlp": {
+        "test_mse_bps2": 0.4131459891796112,
+        "test_rmse_bps": 0.642764334091128,
+        "test_ic": 0.7331125008882869,
+        "parameters": 801
+      },
+      "tkan": {
+        "test_mse_bps2": 0.4160454273223877,
+        "test_rmse_bps": 0.6450158349392576,
+        "test_ic": 0.7340097677728645,
+        "parameters": 3266
+      },
+      "mlp_seconds": 0.09083262299999717,
+      "tkan_seconds": 0.9950204529999951,
+      "train_sequences": 2387,
+      "test_sequences": 597
+    }
+  ],
+  "summary": [
+    {
+      "noise_std": 0.04,
+      "n_seeds": 5,
+      "mlp": {
+        "mean_rmse_bps": 0.6214501955749103,
+        "std_rmse_bps": 0.02482650717491991,
+        "mean_ic": 0.7352056911887906,
+        "std_ic": 0.03084702054459894,
+        "mean_mse_bps2": 0.3866934299468994,
+        "std_mse_bps2": 0.030270941626978087,
+        "parameters": 801
+      },
+      "tkan": {
+        "mean_rmse_bps": 0.6136093767997648,
+        "std_rmse_bps": 0.027247532916706767,
+        "mean_ic": 0.7431519027306033,
+        "std_ic": 0.031274907850440514,
+        "mean_mse_bps2": 0.3771104097366333,
+        "std_mse_bps2": 0.03257792890760387,
+        "parameters": 3266
+      },
+      "paired_rmse_gain_mlp_minus_tkan": {
+        "mean_bps": 0.007840818775145596,
+        "std_bps": 0.005897879398840772,
+        "tkan_wins": 4,
+        "mlp_wins": 1,
+        "ties": 0,
+        "values_bps": [
+          0.013625252839935875,
+          0.008385266048379747,
+          0.011205848926547524,
+          0.007845380186311757,
+          -0.001857654125446917
+        ]
+      }
+    },
+    {
+      "noise_std": 0.08,
+      "n_seeds": 5,
+      "mlp": {
+        "mean_rmse_bps": 0.6253000892985702,
+        "std_rmse_bps": 0.024612929715309033,
+        "mean_ic": 0.732631797832661,
+        "std_ic": 0.030711145012369177,
+        "mean_mse_bps2": 0.39148483872413636,
+        "std_mse_bps2": 0.030150589434781074,
+        "parameters": 801
+      },
+      "tkan": {
+        "mean_rmse_bps": 0.6173715801906031,
+        "std_rmse_bps": 0.027247731168510834,
+        "mean_ic": 0.7407670043040088,
+        "std_ic": 0.031178220833163444,
+        "mean_mse_bps2": 0.3817416191101074,
+        "std_mse_bps2": 0.03273485482013636,
+        "parameters": 3266
+      },
+      "paired_rmse_gain_mlp_minus_tkan": {
+        "mean_bps": 0.00792850910796703,
+        "std_bps": 0.006105684873137209,
+        "tkan_wins": 4,
+        "mlp_wins": 1,
+        "ties": 0,
+        "values_bps": [
+          0.013904352417431931,
+          0.008583995176899673,
+          0.011566499026193888,
+          0.007642187101633446,
+          -0.002054488182323788
+        ]
+      }
+    },
+    {
+      "noise_std": 0.16,
+      "n_seeds": 5,
+      "mlp": {
+        "mean_rmse_bps": 0.6409825943859306,
+        "std_rmse_bps": 0.02420761463483236,
+        "mean_ic": 0.7231163966971724,
+        "std_ic": 0.030596297239558284,
+        "mean_mse_bps2": 0.4113274931907654,
+        "std_mse_bps2": 0.03034174501027682,
+        "parameters": 801
+      },
+      "tkan": {
+        "mean_rmse_bps": 0.6328299158077733,
+        "std_rmse_bps": 0.027203326689524382,
+        "mean_ic": 0.7317376295307026,
+        "std_ic": 0.031056320711900714,
+        "mean_mse_bps2": 0.40106571912765504,
+        "std_mse_bps2": 0.03346744757164386,
+        "parameters": 3266
+      },
+      "paired_rmse_gain_mlp_minus_tkan": {
+        "mean_bps": 0.00815267857815738,
+        "std_bps": 0.00642789825830865,
+        "tkan_wins": 4,
+        "mlp_wins": 1,
+        "ties": 0,
+        "values_bps": [
+          0.014327510648347364,
+          0.009082455387930621,
+          0.01231124200374456,
+          0.007293685698893992,
+          -0.0022515008481296395
+        ]
+      }
+    }
+  ],
+  "notes": "Exploratory synthetic-data sensitivity analysis. Means and sample standard deviations describe the selected seeds; they are not confidence intervals, exchange-data results, or trading-performance claims.",
+  "ci_run_id": 38946424156,
+  "source_commit": "4585da84b97001ef826407f3c6f8292d1e5d62aa"
+}

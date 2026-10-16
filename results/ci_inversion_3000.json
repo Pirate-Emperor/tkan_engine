@@ -1,52 +1,59 @@
 {
-  "ci_run_id": 38927224698,
-  "branch_commit": "846db68cb089da5f6f05dbf06ab2a8163f46fccc",
   "events": 3000,
   "sequence_length": 16,
   "train_sequences": 2387,
   "test_sequences": 597,
   "features": 3,
+  "seed": 123,
+  "noise_std": 0.08,
+  "environment": {
+    "python": "3.12.15",
+    "torch": "2.14.1+cpu",
+    "mlp_device": "cpu",
+    "tkan_device": "cpu"
+  },
+  "ofi_persistence": 0.85,
   "target_units": "synthetic impact basis points",
-  "generator": "0.9*sin(2.6*OFI) + 0.55*OFI^3 + 0.25*dOFI + N(0,0.08^2)",
+  "generator": "OFI is tanh of a stationary AR(1) process (phi=0.85); target = 0.9*sin(2.6*OFI) + 0.55*OFI^3 + 0.25*dOFI + N(0, noise_std^2); features use trailing, causal windows.",
+  "mlp_parameters": 801,
+  "tkan_parameters": 3266,
+  "mlp_seconds": 1.914128293999994,
+  "tkan_seconds": 0.9583030159999737,
   "mlp": {
-    "parameters": 801,
-    "test_mse_bps2": 0.7599496245384216,
-    "test_rmse_bps": 0.8717508959206303,
-    "test_ic": 0.7501842616127318
+    "test_mse_bps2": 0.34029239416122437,
+    "test_rmse_bps": 0.5833458615274685,
+    "test_ic": 0.7817056995860204,
+    "parameters": 801
   },
   "tkan": {
-    "parameters": 3266,
-    "test_mse_bps2": 0.28884389996528625,
-    "test_rmse_bps": 0.5374419968380646,
-    "test_ic": 0.864011729731131
+    "test_mse_bps2": 0.32426363229751587,
+    "test_rmse_bps": 0.5694415091100365,
+    "test_ic": 0.7934706847552334,
+    "parameters": 3266
   },
   "tkan_training_history": [
     {
       "epoch": 1,
-      "loss": 0.5025912099762967
+      "loss": 0.35195767722631754
     },
     {
       "epoch": 2,
-      "loss": 0.461027907697778
+      "loss": 0.2050106384252247
     },
     {
       "epoch": 3,
-      "loss": 0.3803075081423709
+      "loss": 0.19445052350822248
     },
     {
       "epoch": 4,
-      "loss": 0.2590234365902449
+      "loss": 0.1933137170578304
     },
     {
       "epoch": 5,
-      "loss": 0.18192698061466217
+      "loss": 0.19103982966197164
     }
   ],
-  "notes": "Latest recorded controlled synthetic inversion benchmark; not exchange data and not a trading-alpha claim.",
-  "environment": {
-    "runner": "GitHub Actions ubuntu-24.04",
-    "python": "3.10.22",
-    "torch": "2.14.1",
-    "pyarrow": "26.0.0"
-  }
+  "notes": "Controlled synthetic next-step prediction with a chronological split and no future-looking input features. Not exchange data and not a trading-alpha claim.",
+  "ci_run_id": 38946424156,
+  "source_commit": "4585da84b97001ef826407f3c6f8292d1e5d62aa"
 }

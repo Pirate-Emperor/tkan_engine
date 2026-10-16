@@ -1,23 +1,11 @@
 {
-  "ci_run_id": 38927224698,
-  "job": "ddp-cpu-smoke",
+  "rank": 0,
   "world_size": 2,
   "device": "cpu",
-  "global_batch_size": 256,
-  "steps": 10,
-  "global_samples": 2560,
-  "wall_seconds": 21.004562849000024,
-  "samples_per_s": 121.87828037191811,
-  "step_ms": 2100.4562849000026,
-  "parameters": 889604,
-  "environment": {
-    "runner": "GitHub Actions ubuntu-24.04",
-    "python": "3.12.15",
-    "torch": "2.14.1"
-  },
-  "source_commit": "846db68cb089da5f6f05dbf06ab2a8163f46fccc",
   "device_name": "cpu",
   "visible_gpu_count": 0,
+  "amp_enabled": false,
+  "optimizer_fused": false,
   "events": 10000,
   "seq_len": 64,
   "features": 15,
@@ -25,8 +13,20 @@
   "depth": 3,
   "grid_size": 12,
   "local_batch_size": 128,
+  "global_batch_size": 256,
   "warmup_steps": 10,
   "measured_steps": 10,
+  "global_samples": 2560,
+  "wall_seconds": 36.18783899799999,
+  "samples_per_s": 70.74199705988204,
+  "step_ms": 3618.783899799999,
+  "parameters": 889604,
   "max_memory_allocated_bytes": null,
-  "notes": "Two-rank CPU distributed smoke test. Not a GPU throughput result."
+  "environment": {
+    "python": "3.12.15",
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "torch": "2.14.1+cpu"
+  },
+  "ci_run_id": 38946424156,
+  "source_commit": "4585da84b97001ef826407f3c6f8292d1e5d62aa"
 }

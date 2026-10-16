@@ -1,19 +1,17 @@
 {
-  "ci_run_id": 38927224698,
-  "job": "arrow-300m",
   "events": 300000000,
   "batches": 300,
-  "batch_size": 1000000,
-  "elapsed_s": 26.934001238000008,
-  "events_per_s": 11138337.647981655,
+  "elapsed_s": 26.648485119,
+  "events_per_s": 11257675.573689708,
   "selected_rows": 300000000,
   "checksum": 1509462417.5703695,
+  "batch_size": 1000000,
+  "input": null,
   "environment": {
-    "runner": "GitHub Actions ubuntu-24.04",
     "python": "3.12.15",
-    "pyarrow": "26.0.0",
-    "torch": "2.14.1"
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "pyarrow": "26.0.0"
   },
-  "source_commit": "846db68cb089da5f6f05dbf06ab2a8163f46fccc",
-  "measurement_note": "Single synthetic stream run. The 300M rows are generated test events, not recorded exchange messages. Throughput is host-dependent."
+  "ci_run_id": 38946424156,
+  "source_commit": "4585da84b97001ef826407f3c6f8292d1e5d62aa"
 }

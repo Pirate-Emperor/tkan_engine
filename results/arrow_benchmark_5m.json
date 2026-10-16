@@ -1,19 +1,17 @@
 {
-  "ci_run_id": 38927224698,
-  "job": "arrow-smoke",
   "events": 5000000,
   "batches": 20,
-  "batch_size": 250000,
-  "elapsed_s": 0.5127053069999761,
-  "events_per_s": 9752190.842838757,
+  "elapsed_s": 0.481664250999998,
+  "events_per_s": 10380674.898789657,
   "selected_rows": 5000000,
   "checksum": 25165450.69060454,
+  "batch_size": 250000,
+  "input": null,
   "environment": {
-    "runner": "GitHub Actions ubuntu-24.04",
     "python": "3.12.15",
-    "pyarrow": "26.0.0",
-    "torch": "2.14.1"
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "pyarrow": "26.0.0"
   },
-  "source_commit": "846db68cb089da5f6f05dbf06ab2a8163f46fccc",
-  "measurement_note": "Single synthetic stream run. Throughput is host-dependent."
+  "ci_run_id": 38946424156,
+  "source_commit": "4585da84b97001ef826407f3c6f8292d1e5d62aa"
 }
