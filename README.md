@@ -1,225 +1,270 @@
 # T-KAN Microstructure Engine
 
-## Overview
+**Maintainer:** Pirate-Emperor
 
-The **T-KAN Microstructure Engine** is a comprehensive, institutional-grade deep learning and quantitative research framework designed to model non-linear shape-mappings in financial time series. 
+A research implementation for studying event-level limit-order-book (LOB) features with a Temporal Kolmogorov-Arnold Network (T-KAN), Apache Arrow columnar processing, and PyTorch DistributedDataParallel (DDP).
 
-By leveraging Temporal Kolmogorov-Arnold Networks (T-KANs) with B-spline edge activations, the engine dynamically adapts to Order Flow Imbalance (OFI) inversions and high-frequency market microstructure anomalies. The repository unifies a highly optimized KAN implementation, a deep quantitative backtesting suite, and a scalable PyTorch Lightning forecasting pipeline.
+The default examples use seeded synthetic data, so the full pipeline can be checked without private exchange feeds. Real Parquet data can be supplied separately when its license and terms permit the intended use.
 
----
+## Components
 
-## Part I: Efficient Kolmogorov-Arnold Networks (T-KAN)
+| Area | Implementation |
+|---|---|
+| Temporal model | B-spline edge activations, adaptive spline grids, and a causal temporal mixer |
+| LOB features | Spread, queue imbalance, microprice displacement, signed trade, ten depth-imbalance features, and midpoint return |
+| Columnar processing | Apache Arrow RecordBatch processing, q-like filter/select/range/group helpers, and streaming Parquet scans |
+| Training | PyTorch DDP, distributed sampling, CUDA automatic mixed precision (AMP), optional fused AdamW, gradient clipping, and synchronized spline-grid state |
 
-This module contains an optimized, production-ready implementation of Temporal Kolmogorov-Arnold Networks (T-KAN).
+Source code is in `src/tkan_engine`; runnable commands are in `scripts/`.
 
-The performance issue of original KAN implementations is mostly because they need to expand all intermediate variables to perform the different activation functions. For a layer with `in_features` input and `out_features` output, naive implementations need to expand the input to a tensor with shape `(batch_size, out_features, in_features)` to perform the activation functions.
+## Measured results
 
-However, all activation functions are a linear combination of a fixed set of basis functions which are B-splines; given that, we can reformulate the computation as activating the input with different basis functions and then combining them linearly. This reformulation can significantly reduce the memory cost and make the computation a straightforward matrix multiplication, and works with both forward and backward passes natively.
+<!-- CI_VALIDATION_START -->
+[GitHub Actions run 38966773585](https://github.com/SpryzenHell/tkan_engine/actions/runs/38966773585) was generated from commit `17ccefde9894`. The report job starts only after the Python tests, Arrow stress runs, CPU DDP test, and sensitivity sweep have all succeeded.
 
-### Sparsification & L1 Regularization
-The core problem is in the **sparsification** which is critical to the T-KAN's interpretability. Standard L1 regularization defined on the input samples requires non-linear operations on the `(batch_size, out_features, in_features)` tensor, and is thus not compatible with the reformulation.
+| Python | Tests | Passed | Skipped | Failures | Errors |
+|---:|---:|---:|---:|---:|---:|
+| 3.10 | 52 | 52 | 0 | 0 | 0 |
+| 3.11 | 52 | 52 | 0 | 0 | 0 |
+| 3.12 | 52 | 52 | 0 | 0 | 0 |
 
-We instead replace the L1 regularization with an L1 regularization on the weights, which is more common in neural networks and is compatible with the reformulation. 
+| Additional check | Measured result |
+|---|---|
+| Arrow stream | 5,000,000 and 300,000,000 generated events processed in batches |
+| CPU DDP | 2 ranks, 2,560 global samples |
+| Seed/noise experiment | 15 model-pair runs across 5 seeds and 3 noise settings |
+| Charts | 12 SVG charts and 12 PNG copies generated; the same job checks all files |
 
-Another architectural difference is that, beside the learnable activation functions (B-splines), this implementation also includes a learnable scale on each activation function. We provide an option `enable_standalone_scale_spline` that defaults to `True` to include this feature; disabling it will make the model more efficient, but potentially hurts predictive results on complex microstructure data.
+All data results, test counts, and plots are saved in this repository. Benchmark data are synthetic; no live-market or A100 performance claim is implied by these checks.
+<!-- CI_VALIDATION_END -->
 
-### Initialization Dynamics
-Constant initialization of `base_weight` parameters can be a problem during high-variance microstructure training. Both the `base_weight` and `spline_scaler` matrices are initialized with `kaiming_uniform_`, following standard `nn.Linear` initialization, which prevents vanishing gradients during the early stages of representation learning.
+### Controlled nonlinear inversion
 
----
+This experiment fits a known nonlinear target and compares a small MLP with T-KAN. It uses synthetic order-flow features and is a representation-learning test, not a trading backtest or exchange replay.
 
-## Part II: Quantitative Research & Backtesting Suite
+Configuration: 3,000 observations, sequence length 16, chronological 80/20 split, 5 epochs, batch size 128, hidden dimension 16, and spline grid size 6.
 
-The engine includes a massive repository of quantitative research algorithms and statistical baselines used to validate the T-KAN's performance.
+<!-- INVERSION_METRICS_START -->
+| Model | Parameters | Test MSE (bps²) | Test RMSE (bps) | Test IC |
+|---|---:|---:|---:|---:|
+| MLP | 801 | 0.340292 | 0.583346 | 0.781706 |
+| T-KAN | 3,266 | 0.324264 | 0.569442 | 0.793471 |
 
-### Core Analytical Modules
+On this run, T-KAN's test RMSE was 2.4% lower than the MLP's. This is a result for the selected synthetic generator and seed only.
+The split is chronological. The moving-average input is trailing and uses only current or earlier observations.
+<!-- INVERSION_METRICS_END -->
 
-| Index | Module | Description & Application |
-|----:|:---------------------------------------------------------------------------------|:-----------|
-| 1 | **Portfolio Optimization** | Implementation of Modern Portfolio Theory, Efficient Frontier, and convex optimization matrices. |
-| 2 | **Value at Risk (VaR)** | Parametric, Historical, and Monte Carlo VaR models for continuous risk tracking. |
-| 3 | **Classical Linear Regression** | Baseline statistical models for alpha decay measurement. |
-| 4 | **Bayesian Linear Regression** | Probabilistic weight updates for uncertain market regimes. |
-| 5 | **MCMC Linear Regression** | Markov Chain Monte Carlo estimations. |
-| 6 | **Kalman Filter Linear Regression** | Dynamic beta hedging and spread tracking. |
-| 7 | **Tensorflow Linear Regression** | Accelerated baseline architectures. |
-| 8 | **Event-Driven Backtest** | The core deterministic order-matching backtester. |
-| 9 | **Mean Reversion** | Statistical arbitrage and Ornstein-Uhlenbeck processes. |
-| 10 | **Cointegration Pairs Trading** | Stationarity testing (ADF) and spread calculation. |
-| 11 | **Kalman Filter Pairs Trading** | Dynamic hedge ratio calculation using state-space models. |
-| 12 | **Hidden Markov Chain** | Regime switching detection (e.g., High VIX vs Low VIX). |
-| 13 | **RNN Stock Prediction** | Recurrent architectures (baseline for T-KAN comparison). |
-| 14 | **Principal Component Analysis** | PCA for yield curve and relative value fixed-income modeling. |
-| 15 | **ARIMA and GARCH Models** | Autoregressive Integrated Moving Average and generalized autoregressive conditional heteroskedasticity. |
-| 16 | **Fama-French Three-Factor** | Factor modeling and beta exposure. |
-| 17 | **Vector AutoRegression** | VAR models for multi-asset predictive interactions. |
-| 18 | **Gaussian Mixture & Markov Switching** | Advanced density estimations for leptokurtic returns. |
-| 19 | **Portfolio Optimization Two** | Advanced constraints (turnover limits, leverage caps). |
-| 20 | **Volume Factor Evaluation** | Alphalens tearing and factor IC decay tracking. |
-| 21 | **Reinforcement Backtest** | RL environment wrapping the limit order book. |
-| 22 | **Reinforcement Option Pricing** | Deep Q-Learning for optimal stopping times (American Options). |
-| 23 | **Irregular Interval EMA** | Exponential Moving Averages for asynchronous tick data. |
-| 24 | **Historical Market Data Downloader** | Async parsers for raw limit order book ingestion. |
-| 25 | **Market Profile and Volume Profile** | Volume-at-price histograms and Value Area calculations. |
-| 26 | **Reinforcement Trader** | PPO and SAC agents for continuous action spaces. |
-| 27 | **Reinforcement Portfolio Manager** | Dynamic capital allocation across an N-asset universe. |
+![Test RMSE comparison](docs/figures/inversion_rmse.svg)
 
----
+![Test information coefficient comparison](docs/figures/inversion_ic.svg)
 
-## Part III: PyTorch Forecasting & Deep Learning Pipeline
+![T-KAN training loss by epoch](docs/figures/inversion_loss.svg)
 
-The T-KAN Microstructure Engine integrates a PyTorch-based package for forecasting with state-of-the-art deep learning architectures. It provides a high-level API and uses PyTorch Lightning to scale training on GPU or CPU, with automatic logging.
+![Parameter count and test error](docs/figures/model_tradeoff.svg)
 
-The package provides:
-- A timeseries dataset class which abstracts handling variable transformations, missing values, randomized subsampling, multiple history lengths, etc.
-- A base model class which provides basic training of timeseries models along with logging in TensorBoard and generic visualizations such as actual vs predictions and dependency plots.
-- Multi-horizon timeseries metrics.
-- Hyperparameter tuning with Optuna.
+The run details and training history are stored in results/ci_inversion_3000.json.
 
-### Available Architectures
+### Seed and noise sensitivity
 
-- **Temporal Fusion Transformers (TFT):** For Interpretable Multi-horizon Time Series Forecasting, which heavily outperforms standard autoregressive baselines.
-- **N-BEATS:** Neural basis expansion analysis for interpretable time series forecasting, which has (if used as ensemble) outperformed all other methods including ensembles of traditional statical methods.
-- **N-HiTS:** Neural Hierarchical Interpolation for Time Series Forecasting which supports covariates and is particularly well-suited for long-horizon forecasting.
-- **DeepAR:** Probabilistic forecasting with autoregressive recurrent networks which is the one of the most popular forecasting algorithms and is often used as a baseline.
-- **Standard Networks:** LSTM and GRU networks as well as a MLP on the decoder.
+A separate experiment repeats the MLP and T-KAN comparison across several random seeds and target-noise levels. It reports mean test error, run-to-run standard deviation, information coefficient, and the paired RMSE difference for each noise level.
 
-### Usage Example
+<!-- INVERSION_SWEEP_START -->
+| Target noise SD | Seeds | MLP RMSE (mean ± SD) | T-KAN RMSE (mean ± SD) | MLP IC (mean ± SD) | T-KAN IC (mean ± SD) | Mean RMSE gain (MLP − T-KAN) | T-KAN wins |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.04 | 5 | 0.6215 ± 0.0248 | 0.6136 ± 0.0272 | 0.7352 ± 0.0308 | 0.7432 ± 0.0313 | +0.0078 ± 0.0059 bps | 4/5 |
+| 0.08 | 5 | 0.6253 ± 0.0246 | 0.6174 ± 0.0272 | 0.7326 ± 0.0307 | 0.7408 ± 0.0312 | +0.0079 ± 0.0061 bps | 4/5 |
+| 0.16 | 5 | 0.6410 ± 0.0242 | 0.6328 ± 0.0272 | 0.7231 ± 0.0306 | 0.7317 ± 0.0311 | +0.0082 ± 0.0064 bps | 4/5 |
 
-Networks can be trained with the PyTorch Lightning Trainer on pandas Dataframes which are first converted to a `TimeSeriesDataSet`.
+This sweep includes 15 model-pair runs across 5 seeds and 3 noise settings. Reported SD values measure variation across these runs; they are not confidence intervals. Positive RMSE gain means T-KAN had lower error, while negative gain means the MLP had lower error.
 
-```python
-# imports for training
-import lightning.pytorch as pl
-from lightning.pytorch.loggers import TensorBoardLogger
-from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor
+![RMSE by noise level](docs/figures/inversion_noise_rmse.svg)
 
-# import dataset, network to train and metric to optimize
-from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer, QuantileLoss
-from lightning.pytorch.tuner import Tuner
+![Information coefficient by noise level](docs/figures/inversion_noise_ic.svg)
 
-# Load data: This is a pandas dataframe with at least a column for
-# * the target (what you want to predict)
-# * the timeseries ID (which should be a unique string to identify each timeseries)
-# * the time of the observation (which should be a monotonically increasing integer)
-data = ...
+![RMSE by random seed](docs/figures/inversion_seed_rmse.svg)
 
-# define the dataset, i.e. add metadata to pandas dataframe for the model to understand it
-max_encoder_length = 36
-max_prediction_length = 6
-training_cutoff = "YYYY-MM-DD"  # day for cutoff
+![Paired RMSE difference](docs/figures/inversion_rmse_gain.svg)
 
-training = TimeSeriesDataSet(
-    data[lambda x: x.date <= training_cutoff],
-    time_idx= ...,  # column name of time of observation
-    target= ...,  # column name of target to predict
-    group_ids=[ ... ],  # column name(s) for timeseries IDs
-    max_encoder_length=max_encoder_length,  # how much history to use
-    max_prediction_length=max_prediction_length,  # how far to predict into future
-    # covariates static for a timeseries ID
-    static_categoricals=[ ... ],
-    static_reals=[ ... ],
-    # covariates known and unknown in the future to inform prediction
-    time_varying_known_categoricals=[ ... ],
-    time_varying_known_reals=[ ... ],
-    time_varying_unknown_categoricals=[ ... ],
-    time_varying_unknown_reals=[ ... ],
-)
+Full per-seed values and training times are recorded in results/inversion_sweep.json.
+<!-- INVERSION_SWEEP_END -->
 
-# create validation dataset using the same normalization techniques as for the training dataset
-validation = TimeSeriesDataSet.from_dataset(
-    training, 
-    data, 
-    min_prediction_idx=training.index.time.max() + 1, 
-    stop_randomization=True
-)
+### Apache Arrow event processing
 
-# convert datasets to dataloaders for training
-batch_size = 128
-train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=2)
-val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size, num_workers=2)
+The stress generator creates synthetic event batches and runs columnar feature calculation, filtering, projection and checksum calculation one batch at a time. It does not build a 300M-row table in memory.
 
-# create PyTorch Lightning Trainer with early stopping
-early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=1, verbose=False, mode="min")
-lr_logger = LearningRateMonitor()
-trainer = pl.Trainer(
-    max_epochs=100,
-    accelerator="auto",  # run on CPU, if on multiple GPUs, use strategy="ddp"
-    gradient_clip_val=0.1,
-    limit_train_batches=30,  # 30 batches per epoch
-    callbacks=[lr_logger, early_stop_callback],
-    logger=TensorBoardLogger("lightning_logs")
-)
+<!-- ARROW_METRICS_START -->
+| Events | Batch size | Batches | Elapsed (s) | Throughput | Selected rows | Checksum |
+|---:|---:|---:|---:|---:|---:|---:|
+| 5,000,000 | 250,000 | 20 | 0.359 | 13.923M | 5,000,000 | 25,165,450.6906 |
+| 300,000,000 | 1,000,000 | 300 | 32.233 | 9.307M | 300,000,000 | 1,509,462,417.5704 |
 
-# define network to train - the architecture is mostly inferred from the dataset, 
-# so that only a few hyperparameters have to be set by the user
-tft = TemporalFusionTransformer.from_dataset(
-    # dataset
-    training,
-    # architecture hyperparameters
-    hidden_size=32,
-    attention_head_size=1,
-    dropout=0.1,
-    hidden_continuous_size=16,
-    # loss metric to optimize
-    loss=QuantileLoss(),
-    # logging frequency
-    log_interval=2,
-    # optimizer parameters
-    learning_rate=0.03,
-    reduce_on_plateau_patience=4
-)
-print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
+These are fresh runs over generated events, not replayed exchange messages. They ran in separate CI jobs, so rates are host-dependent and are not a controlled scaling comparison. Full environment and source commit are saved in the JSON result files.
+<!-- ARROW_METRICS_END -->
 
-# find the optimal learning rate
-res = Tuner(trainer).lr_find(
-    tft, 
-    train_dataloaders=train_dataloader, 
-    val_dataloaders=val_dataloader, 
-    early_stop_threshold=1000.0, 
-    max_lr=0.3,
-)
+The 300M-event result is a synthetic Arrow stress test, not a claim that 300M real exchange messages were replayed. Checksums and environment details are stored with the measured JSON. The two timings come from separate CI jobs and should not be treated as a controlled hardware scaling comparison.
 
-# and plot the result - always visually confirm that the suggested learning rate makes sense
-print(f"suggested learning rate: {res.suggestion()}")
-fig = res.plot(show=True, suggest=True)
-fig.show()
+![Arrow throughput at two event counts](docs/figures/arrow_300m.svg)
 
-# fit the model on the data - redefine the model with the correct learning rate if necessary
-trainer.fit(
-    tft, 
-    train_dataloaders=train_dataloader, 
-    val_dataloaders=val_dataloader,
-)
+![Observed Arrow runtime by event count](docs/figures/arrow_runtime.svg)
 
+![Arrow batch counts and batch sizes](docs/figures/arrow_batches.svg)
+
+Saved run data: `results/arrow_benchmark_5m.json` and `results/arrow_benchmark_300m.json`.
+
+### Distributed training smoke test
+
+<!-- DDP_METRICS_START -->
+| Device | Ranks | Global samples | Wall time (s) | Samples/s | Local batch | Warmup steps | Measured steps |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| cpu | 2 | 2,560 | 18.114 | 141.324 | 128 | 10 | 10 |
+
+This is a distributed smoke test on the device listed above. CPU results do not measure GPU speed or multi-GPU scaling.
+<!-- DDP_METRICS_END -->
+
+![Two-rank CPU DDP smoke result](docs/figures/ddp_cpu.svg)
+
+The exact metrics are in `results/ddp_benchmark_cpu.json`.
+
+### A100 training results
+
+<!-- GPU_RESULTS_START -->
+No A100 throughput or GPU arithmetic-intensity result has been recorded in this checkout. The `integrator-1` runner was offline during this validation on 16 October 2026, so no GPU metric is claimed. To measure it, manually launch the `tkan-engine-a100-validation` workflow from the repository where that runner is registered. The workflow checks out this project, validates the visible A100 40GB devices, runs the test suite and benchmarks, and uploads the metrics and plots as an artifact. CPU DDP results are not a substitute for this measurement.
+<!-- GPU_RESULTS_END -->
+
+## Installation
+
+Python 3.10, 3.11 and 3.12 are covered by the continuous-integration matrix.
+
+### Linux or macOS
+
+```shell
+git clone https://github.com/SpryzenHell/tkan_engine.git
+cd tkan_engine
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[full]"
 ```
 
-The package is built on `pytorch-lightning` to allow training on CPUs, single and multiple GPUs out-of-the-box, ensuring that processing terabytes of Limit Order Book data executes with deterministic performance bounds.
+Use an available Python 3.10 or 3.11 interpreter in place of `python3.12` when required.
 
+### Windows PowerShell
 
-## License
+```powershell
+git clone https://github.com/SpryzenHell/tkan_engine.git
+cd tkan_engine
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[full]"
+```
 
-This project is licensed under the Pirate-Emperor License. See the [LICENSE](LICENSE) file for details.
+For CUDA training, install the PyTorch build suited to the target machine first, then install the project. The code selects CUDA when it is available and otherwise uses CPU. No GPU benchmark is reported unless a CUDA run completes.
 
-## Author
+## Verify the installation
 
-**Pirate-Emperor**
+Run a quick environment and model check:
 
-[![Twitter](https://skillicons.dev/icons?i=twitter)](https://twitter.com/PirateKingRahul)
-[![Discord](https://skillicons.dev/icons?i=discord)](https://discord.com/users/1200728704981143634)
-[![LinkedIn](https://skillicons.dev/icons?i=linkedin)](https://www.linkedin.com/in/piratekingrahul)
+```shell
+python scripts/self_check.py
+```
 
-[![Reddit](https://img.shields.io/badge/Reddit-FF5700?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/u/PirateKingRahul)
-[![Medium](https://img.shields.io/badge/Medium-42404E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@piratekingrahul)
+Run the tests:
 
-- GitHub: [Pirate-Emperor](https://github.com/Pirate-Emperor)
-- Reddit: [PirateKingRahul](https://www.reddit.com/u/PirateKingRahul/)
-- Twitter: [PirateKingRahul](https://twitter.com/PirateKingRahul)
-- Discord: [PirateKingRahul](https://discord.com/users/1200728704981143634)
-- LinkedIn: [PirateKingRahul](https://www.linkedin.com/in/piratekingrahul)
-- Skype: [Join Skype](https://join.skype.com/invite/yfjOJG3wv9Ki)
-- Medium: [PirateKingRahul](https://medium.com/@piratekingrahul)
+```shell
+pytest
+```
 
-Thank you for visiting this project!
+The test suite covers spline basis shapes and sums, forward/backward gradients, adaptive grids, temporal output shapes, feature values, stream continuity and reproducibility, input validation, and Arrow filtering, grouping and batch accounting where PyArrow is installed.
 
----
+## Run the nonlinear inversion benchmark
+
+```shell
+python scripts/inversion_benchmark.py --events 3000 --epochs 5 --batch-size 128 --hidden 16 --grid-size 6
+python scripts/inversion_sweep.py --events 3000 --epochs 5 --batch-size 128 --hidden 16 --grid-size 6 --seeds 123,321,456,789,987 --noise-levels 0.04,0.08,0.16
+```
+
+The OFI signal is generated from a stationary AR(1) process with persistence 0.85, then passed through tanh. The target is:
+
+```text
+0.9*sin(2.6*OFI[t]) + 0.55*OFI[t]^3
++ 0.25*(OFI[t] - OFI[t-1]) + N(0, noise_std^2)
+```
+
+The default noise standard deviation is 0.08 and can be changed with `--noise-std`. Input features use a trailing five-observation mean, not a centered window, so future observations are not included. The split is chronological. The script writes `results/inversion_benchmark.json`.
+
+## Train the LOB model
+
+```shell
+python scripts/train.py --events 30000 --seq-len 64 --epochs 6 --batch-size 256 --hidden 48 --depth 2 --grid-size 8
+```
+
+The command writes `results/model_metrics.json`. This path materializes the requested development-sized event window into pandas; use the Arrow pipeline for large streaming tests.
+
+## Run Arrow tests and stress runs
+
+Small smoke test:
+
+```shell
+python scripts/benchmark_arrow.py --events 5000000 --batch-size 250000
+```
+
+Large synthetic stress test:
+
+```shell
+python scripts/benchmark_arrow.py --events 300000000 --batch-size 1000000
+```
+
+For a real Parquet dataset, provide a file or directory containing the columns `ts_ns`, `bid_px_1`, `ask_px_1`, `bid_sz_1`, and `ask_sz_1`:
+
+```shell
+python scripts/benchmark_arrow.py --input /path/to/parquet/dataset --batch-size 1000000
+```
+
+Record the dataset identifier, date range, symbols, machine specifications, library versions and exact command for each real-data measurement. Only use data that you are permitted to access and process. No pretrained model is required; the example models are trained from scratch.
+
+## q-like operations
+
+`src/tkan_engine/arrow_pipeline.py` provides small Arrow-backed helpers:
+
+- `q_where`: filter rows using an Arrow expression.
+- `q_select`: keep the requested columns.
+- `q_within`: filter an inclusive numeric range.
+- `q_by`: group rows and apply Arrow aggregations.
+
+These helpers cover a useful subset of q-style operations. They are not a q interpreter or a replacement for a production KDB+/q deployment.
+
+## Run DDP
+
+Two-rank CPU smoke test:
+
+```shell
+torchrun --standalone --nproc_per_node=2 scripts/ddp_benchmark.py --distributed --events 10000 --steps 10 --batch-size 128
+```
+
+The same benchmark script selects CUDA when it is available and supports mixed precision and fused AdamW when supported. See the A100 workflow below for measured single-/multi-GPU runs.
+
+### A100 benchmarks and profiling
+
+The manual `tkan-engine-a100-validation` workflow must be launched from the repository where the self-hosted runner `integrator-1` is registered. It checks out this project at the selected branch or commit, confirms the A100 40GB devices and CUDA setup, runs the tests and Arrow stress tests, measures 1-, 2- and (when available) 4-GPU training, and saves a PyTorch profiler report. It uploads result JSON files, plots, and the updated benchmark summary as an artifact.
+
+The workflow needs a matching runner that is online and has a working NVIDIA driver and CUDA-enabled PyTorch installation. For lower-level arithmetic-intensity counters, use Nsight Compute when it is installed on the GPU host; the PyTorch profiler is operator-level profiling and is not itself a hardware-counter measurement.
+
+## Continuous integration
+
+The CI workflow checks Python 3.10, 3.11 and 3.12; runs unit tests and the nonlinear inversion benchmark; executes 5M- and 300M-event Arrow paths; and runs a two-rank CPU DDP smoke test. The report job records the current single-run metrics and a fifteen-run seed/noise sensitivity sweep, generates twelve SVG plots from the saved JSON values, and attaches PNG copies as an action artifact.
+
+## Figures and saved results
+
+The twelve experiment plots are generated with Matplotlib from saved JSON results by:
+
+```shell
+python -m pip install "matplotlib>=3.8"
+python scripts/render_report.py
+```
+
+The SVG plots are written under `docs/figures/`, and PNG copies under `results/figures/`. Architecture and feature diagrams are separate from the charts and are retained as supporting documentation.
+
+## Scope and limits
+
+This is a research and benchmark project, not a production market-data or trading system. It has no exchange connection or order execution code. Synthetic test results do not establish trading returns or generalization to real markets. The Arrow 300M result demonstrates streaming columnar processing on generated data; a separate licensed replay dataset is required to measure real-market behavior.

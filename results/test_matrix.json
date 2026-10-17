@@ -1,0 +1,27 @@
+{
+  "ci_run_id": 38966773585,
+  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e",
+  "python_versions": {
+    "3.10": {
+      "tests": 52,
+      "passed": 52,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0
+    },
+    "3.11": {
+      "tests": 52,
+      "passed": 52,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0
+    },
+    "3.12": {
+      "tests": 52,
+      "passed": 52,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0
+    }
+  }
+}

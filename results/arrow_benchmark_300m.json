@@ -1,0 +1,17 @@
+{
+  "events": 300000000,
+  "batches": 300,
+  "elapsed_s": 32.233169700999994,
+  "events_per_s": 9307182.718387539,
+  "selected_rows": 300000000,
+  "checksum": 1509462417.5703695,
+  "batch_size": 1000000,
+  "input": null,
+  "environment": {
+    "python": "3.12.15",
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "pyarrow": "26.0.0"
+  },
+  "ci_run_id": 38966773585,
+  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e"
+}
