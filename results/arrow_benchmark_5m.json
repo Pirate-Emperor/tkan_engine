@@ -1,8 +1,8 @@
 {
   "events": 5000000,
   "batches": 20,
-  "elapsed_s": 0.3591168349999805,
-  "events_per_s": 13923045.406657897,
+  "elapsed_s": 0.37471804299999434,
+  "events_per_s": 13343366.014537163,
   "selected_rows": 5000000,
   "checksum": 25165450.69060454,
   "batch_size": 250000,
@@ -12,6 +12,6 @@
     "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
     "pyarrow": "26.0.0"
   },
-  "ci_run_id": 38966773585,
-  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e"
+  "ci_run_id": 39068306423,
+  "source_commit": "ee4946ff686c47ab0ead0497104d2b867135773c"
 }

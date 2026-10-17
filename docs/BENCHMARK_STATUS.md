@@ -3,7 +3,7 @@
 ## Latest complete CI validation
 
 <!-- CI_VALIDATION_START -->
-[GitHub Actions run 38966773585](https://github.com/SpryzenHell/tkan_engine/actions/runs/38966773585) was generated from commit `17ccefde9894`. The report job starts only after the Python tests, Arrow stress runs, CPU DDP test, and sensitivity sweep have all succeeded.
+[GitHub Actions run 39068306423](https://github.com/SpryzenHell/tkan_engine/actions/runs/39068306423) was generated from commit `ee4946ff686c`. The report job starts only after the Python tests, Arrow stress runs, CPU DDP test, and sensitivity sweep have all succeeded.
 
 | Python | Tests | Passed | Skipped | Failures | Errors |
 |---:|---:|---:|---:|---:|---:|
@@ -66,8 +66,8 @@ Both runs process deterministic synthetic batches and release each batch after p
 <!-- ARROW_METRICS_START -->
 | Events | Batch size | Batches | Elapsed (s) | Throughput | Selected rows | Checksum |
 |---:|---:|---:|---:|---:|---:|---:|
-| 5,000,000 | 250,000 | 20 | 0.359 | 13.923M | 5,000,000 | 25,165,450.6906 |
-| 300,000,000 | 1,000,000 | 300 | 32.233 | 9.307M | 300,000,000 | 1,509,462,417.5704 |
+| 5,000,000 | 250,000 | 20 | 0.375 | 13.343M | 5,000,000 | 25,165,450.6906 |
+| 300,000,000 | 1,000,000 | 300 | 23.279 | 12.887M | 300,000,000 | 1,509,462,417.5704 |
 
 These are fresh runs over generated events, not replayed exchange messages. They ran in separate CI jobs, so rates are host-dependent and are not a controlled scaling comparison. Full environment and source commit are saved in the JSON result files.
 <!-- ARROW_METRICS_END -->
@@ -79,7 +79,7 @@ The runs were in separate CI jobs; their rates are host-dependent and should not
 <!-- DDP_METRICS_START -->
 | Device | Ranks | Global samples | Wall time (s) | Samples/s | Local batch | Warmup steps | Measured steps |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| cpu | 2 | 2,560 | 18.114 | 141.324 | 128 | 10 | 10 |
+| cpu | 2 | 2,560 | 21.435 | 119.432 | 128 | 10 | 10 |
 
 This is a distributed smoke test on the device listed above. CPU results do not measure GPU speed or multi-GPU scaling.
 <!-- DDP_METRICS_END -->

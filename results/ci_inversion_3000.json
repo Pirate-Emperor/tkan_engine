@@ -17,8 +17,8 @@
   "generator": "OFI is tanh of a stationary AR(1) process (phi=0.85); target = 0.9*sin(2.6*OFI) + 0.55*OFI^3 + 0.25*dOFI + N(0, noise_std^2); features use trailing, causal windows.",
   "mlp_parameters": 801,
   "tkan_parameters": 3266,
-  "mlp_seconds": 1.2097377890000018,
-  "tkan_seconds": 0.9263432920000128,
+  "mlp_seconds": 1.1855733689999965,
+  "tkan_seconds": 0.9488524670000089,
   "mlp": {
     "test_mse_bps2": 0.34029239416122437,
     "test_rmse_bps": 0.5833458615274685,
@@ -54,6 +54,6 @@
     }
   ],
   "notes": "Controlled synthetic next-step prediction with a chronological split and no future-looking input features. Not exchange data and not a trading-alpha claim.",
-  "ci_run_id": 38966773585,
-  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e"
+  "ci_run_id": 39068306423,
+  "source_commit": "ee4946ff686c47ab0ead0497104d2b867135773c"
 }

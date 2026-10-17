@@ -18,9 +18,9 @@
   "warmup_steps": 10,
   "measured_steps": 10,
   "global_samples": 2560,
-  "wall_seconds": 18.114375431000013,
-  "samples_per_s": 141.3242211828594,
-  "step_ms": 1811.4375431000014,
+  "wall_seconds": 21.434785178999988,
+  "samples_per_s": 119.43203436011451,
+  "step_ms": 2143.4785178999987,
   "parameters": 889604,
   "max_memory_allocated_bytes": null,
   "environment": {
@@ -28,6 +28,6 @@
     "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
     "torch": "2.14.1+cpu"
   },
-  "ci_run_id": 38966773585,
-  "source_commit": "17ccefde9894ecaa45829434aaecec43552d545e"
+  "ci_run_id": 39068306423,
+  "source_commit": "ee4946ff686c47ab0ead0497104d2b867135773c"
 }
